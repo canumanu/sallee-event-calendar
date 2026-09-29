@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Sallee Event Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: race-program style — sticky toolbar, a "next up" strip, then timeline (grouped by month) or month grid; editing happens in a side drawer. */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --surface-2:#eaeee9; --ink:#15201b; --muted:#5b6861; --line:#d9dfd9;
+  --accent:#0e5a41; --accent-ink:#ffffff; --focus:#2a6fdb;
+  --c-meet:#2f7a55; --c-raceday:#b1263a; --c-sale:#2856a3; --c-digital:#6b5fa8; --c-tack:#a86b12;
+  --c-meet-bg:#e3f1e9; --c-raceday-bg:#f8e3e6; --c-sale-bg:#e3eaf7; --c-digital-bg:#ece9f6; --c-tack-bg:#f7ecd9;
+  --ok:#2f7a55; --warn:#a86b12; --danger:#b1263a;
+  --shadow:0 10px 40px rgba(15,30,22,.18);
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101613; --surface:#18201c; --surface-2:#212b26; --ink:#e7ede9; --muted:#9aa89f; --line:#2c3832;
+  --accent:#5cc49a; --accent-ink:#0b1a13; --focus:#7fb0ff;
+  --c-meet:#6bcf9b; --c-raceday:#f07a8a; --c-sale:#86aef0; --c-digital:#b3a8ec; --c-tack:#e9b35c;
+  --c-meet-bg:#1c3328; --c-raceday-bg:#3a1d23; --c-sale-bg:#1c2a42; --c-digital-bg:#2a2542; --c-tack-bg:#3a2d17;
+  --ok:#6bcf9b; --warn:#e9b35c; --danger:#f07a8a; --shadow:0 10px 40px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101613; --surface:#18201c; --surface-2:#212b26; --ink:#e7ede9; --muted:#9aa89f; --line:#2c3832;
+  --accent:#5cc49a; --accent-ink:#0b1a13; --focus:#7fb0ff;
+  --c-meet:#6bcf9b; --c-raceday:#f07a8a; --c-sale:#86aef0; --c-digital:#b3a8ec; --c-tack:#e9b35c;
+  --c-meet-bg:#1c3328; --c-raceday-bg:#3a1d23; --c-sale-bg:#1c2a42; --c-digital-bg:#2a2542; --c-tack-bg:#3a2d17;
+  --ok:#6bcf9b; --warn:#e9b35c; --danger:#f07a8a; --shadow:0 10px 40px rgba(0,0,0,.5); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:20px 60px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* header */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding-bottom:14px;border-bottom:3px solid var(--ink)}
+.brand small{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,5vw,44px);line-height:1;margin:4px 0 0;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+.today-stamp{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right}
+@media (max-width:560px){.today-stamp{text-align:left}.acct{justify-content:flex-start}}
+.today-stamp b{display:block;font-family:var(--f-display);font-size:22px;color:var(--ink);font-weight:600;letter-spacing:.02em}
+
+/* next up */
+.nextup{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,2fr);gap:12px;margin-top:16px}
+@media (max-width:760px){.nextup{grid-template-columns:1fr}}
+.feature{background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;cursor:pointer;border:0;text-align:left}
+.feature .lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.feature .count{font-family:var(--f-display);font-size:48px;font-weight:700;line-height:.9}
+.feature .count span{font-size:20px;font-weight:600;margin-left:6px}
+.feature .t{font-family:var(--f-display);font-size:22px;font-weight:600;line-height:1.1}
+.feature .s{font-size:13px;opacity:.9}
+.soon{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:0}
+.soon h2{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:4px 0 6px;font-weight:500}
+.soon ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.soon li button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:78px 10px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;padding:6px 4px;border-radius:6px}
+.soon li button:hover{background:var(--surface-2)}
+.soon li button:focus-visible{outline:2px solid var(--focus)}
+.soon .d{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.soon .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.soon .in{font-size:12px;color:var(--muted);white-space:nowrap}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--cc)}
+
+/* toolbar */
+.toolbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-block:14px 12px;margin-top:6px;border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 14px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.search{flex:1 1 180px;min-width:0;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+select.venue{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);max-width:100%}
+.check{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:8px;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--danger)}
+.btn.danger.armed{background:var(--danger);border-color:var(--danger);color:var(--surface)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;width:100%}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--cbg);border-color:var(--cc);color:var(--ink)}
+.chip .k{font-family:var(--f-mono);font-size:11px;font-weight:400;opacity:.8}
+
+.notice{margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--surface-2);font-size:14px;color:var(--muted)}
+
+/* timeline */
+.month{margin-top:26px}
+.month h3{display:flex;align-items:baseline;gap:10px;margin:0 0 8px;font-family:var(--f-display);font-weight:700;font-size:26px;text-transform:uppercase;letter-spacing:.03em}
+.month h3 span{font-family:var(--f-mono);font-size:12px;font-weight:400;color:var(--muted);letter-spacing:0;text-transform:none}
+.rows{display:grid;gap:6px}
+.row{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:86px 48px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--cc);border-radius:8px;padding:10px 14px 10px 12px}
+.row:hover{border-color:var(--cc)}
+.row:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.row.past{opacity:.55}
+.row .date{font-family:var(--f-display);line-height:1}
+.row .date b{display:block;font-size:26px;font-weight:700}
+.row .date i{font-style:normal;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.row .title{font-weight:700;font-size:16px;line-height:1.25}
+.row .meta{font-size:13px;color:var(--muted);margin-top:2px}
+.row .tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center}
+@media (max-width:640px){.row{grid-template-columns:58px 40px minmax(0,1fr)}.row .badge{--bs:40px}.row .tags{grid-column:2/-1;justify-content:flex-start}.row .date b{font-size:22px}}
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.tag.cat{background:var(--cbg);color:var(--cc)}
+.tag.star{background:var(--ink);color:var(--bg)}
+.tag.tbc{border:1px dashed var(--warn);color:var(--warn)}
+.roll{display:grid;gap:12px}
+.roll p{margin:0}
+.roll .big{font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1}
+.tag.live{background:var(--c-raceday);color:var(--surface)}
+.tag.st-planned{border:1px solid var(--line);color:var(--muted)}
+.tag.st-scheduled{border:1px solid var(--warn);color:var(--warn)}
+.tag.st-shot{background:var(--c-sale-bg);color:var(--c-sale)}
+.tag.st-posted{background:var(--ok);color:var(--surface)}
+.tag.shots{font-family:var(--f-mono);letter-spacing:0;text-transform:none;font-weight:500;color:var(--muted);border:1px dashed var(--line)}
+.todayline{display:flex;align-items:center;gap:10px;margin:18px 0 0;font-family:var(--f-mono);font-size:12px;color:var(--danger);font-weight:500;text-transform:uppercase;letter-spacing:.1em}
+.todayline::after{content:"";flex:1;height:2px;background:var(--danger)}
+
+/* month grid */
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:20px}
+.cal-head h3{margin:0;font-family:var(--f-display);font-weight:700;font-size:28px;text-transform:uppercase;letter-spacing:.03em}
+.running{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;font-size:13px;color:var(--muted)}
+.running button{all:unset;cursor:pointer;background:var(--cbg);color:var(--ink);border-left:4px solid var(--cc);padding:3px 8px;border-radius:4px;font-weight:600}
+.running button:focus-visible{outline:2px solid var(--focus)}
+.grid-scroll{overflow-x:auto;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);min-width:320px}
+.grid .dow{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface-2)}
+.day{all:unset;box-sizing:border-box;cursor:pointer;min-height:96px;padding:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:3px;min-width:0}
+.day.out{background:var(--bg)}
+.day.out .num{opacity:.4}
+.day.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.day:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.day .num{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.day.today .num{background:var(--danger);color:var(--surface);border-radius:4px;padding:0 5px;align-self:flex-start}
+.ev{font-size:12px;font-weight:600;line-height:1.2;padding:2px 5px;border-radius:3px;background:var(--cbg);border-left:3px solid var(--cc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.more{font-size:11px;color:var(--muted)}
+@media (max-width:640px){.day{min-height:58px}.ev{font-size:0;padding:0;height:5px;border-left:0;background:var(--cc)}}
+.daylist{margin-top:16px}
+.daylist h4{font-family:var(--f-display);font-size:20px;text-transform:uppercase;margin:0 0 8px;letter-spacing:.03em}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--surface);z-index:21;box-shadow:var(--shadow);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.dr-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:4px solid var(--cc,var(--accent))}
+.dr-top .k{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.x{border:0;background:none;font-size:22px;line-height:1;padding:4px 8px;color:var(--muted)}
+.dr-body{overflow-y:auto;padding:14px 16px 24px;display:grid;gap:14px}
+.field{display:grid;gap:4px;min-width:0}
+.field label,.flabel{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.field input[type=text],.field input[type=date],.field select,.field textarea,.addshot input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.field textarea{min-height:90px;resize:vertical}
+.ttl{font-family:var(--f-display)!important;font-size:24px!important;font-weight:700;line-height:1.1}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.status{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.status button{border:0;border-right:1px solid var(--line);background:var(--bg);padding:8px 4px;font-size:13px;font-weight:600;color:var(--muted)}
+.status button:last-child{border-right:0}
+.status button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.shots{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.shots li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:start;padding:6px 8px;background:var(--bg);border-radius:6px}
+.shots li.done span{text-decoration:line-through;color:var(--muted)}
+.shots input[type=checkbox]{margin-top:3px;width:16px;height:16px;accent-color:var(--accent)}
+.shots .rm{border:0;background:none;color:var(--muted);font-size:16px;line-height:1;padding:0 4px}
+.addshot{display:flex;gap:6px}
+.addshot input{flex:1;min-width:0}
+.hint{font-size:12px;color:var(--muted)}
+.dr-foot{display:flex;justify-content:space-between;gap:8px;padding-top:6px;border-top:1px solid var(--line);flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:14px;z-index:40}
+.empty{margin-top:30px;padding:30px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
+/* venue badges: a logo when one is loaded, otherwise the venue's industry code */
+.badge{--bs:48px;width:var(--bs);height:var(--bs);flex:none;border-radius:8px;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;line-height:1}
+.badge b{font-family:var(--f-display);font-weight:700;font-size:calc(var(--bs)*.36);letter-spacing:.02em;color:var(--ink)}
+.badge.logo{background:#fff;padding:4px}
+.badge.logo img{width:100%;height:100%;object-fit:contain}
+.feature .fhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.feature .badge{--bs:52px;border-color:transparent}
+.dr-top .who{display:flex;align-items:center;gap:10px;min-width:0}
+.dr-top .badge{--bs:40px}
+.soon .badge{--bs:26px;border-radius:5px}
+.soon li button{grid-template-columns:62px 26px minmax(0,1fr) auto!important}
+.cc-meet{--cc:var(--c-meet);--cbg:var(--c-meet-bg)}
+.cc-raceday{--cc:var(--c-raceday);--cbg:var(--c-raceday-bg)}
+.cc-sale{--cc:var(--c-sale);--cbg:var(--c-sale-bg)}
+.cc-digital{--cc:var(--c-digital);--cbg:var(--c-digital-bg)}
+.cc-tack{--cc:var(--c-tack);--cbg:var(--c-tack-bg)}
+@media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(30px);opacity:.6}}}
+/* base reset */
+html{color-scheme:light}
+body{margin:0;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+img{max-width:100%}
+.acct{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:4px;font-family:var(--f-body);font-size:13px;color:var(--muted)}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer}
+a.btn{text-decoration:none;color:var(--ink);display:inline-block}
+.gate h2{font-family:var(--f-display);font-size:28px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink);margin:0 0 6px}
+.gate p{max-width:52ch;margin:6px auto 14px}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="head">
+    <div class="brand">
+      <small>Sallee Horse Vans · Social media · <span id="seasons">Seasons</span></small>
+      <h1>Event Calendar</h1>
+    </div>
+    <div class="today-stamp">Today<b id="todayLbl">—</b><div class="acct"><span id="who"></span><button id="signOut" class="linkbtn" hidden>Sign out</button></div></div>
+  </header>
+
+  <section class="nextup" id="nextup" aria-label="Coming up"></section>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="View">
+      <button id="vTimeline" aria-pressed="true">Timeline</button>
+      <button id="vMonth" aria-pressed="false">Month</button>
+    </div>
+    <input id="q" class="search" type="search" placeholder="Search events, venues, towns…" aria-label="Search">
+    <select id="venue" class="venue" aria-label="Venue"></select>
+    <label class="check"><input id="past" type="checkbox"> Show past</label>
+    <button id="addBtn" class="btn primary">+ Add event</button>
+    <button id="rollBtn" class="btn">Plan next year</button>
+    <a id="recipLink" class="btn" hidden target="_blank" rel="noopener">Reminder recipients</a>
+    <a id="spLink" class="btn" hidden target="_blank" rel="noopener">Open list in SharePoint</a>
+    <div class="chips" id="chips" role="group" aria-label="Event types"></div>
+  </div>
+
+  <div id="notice" class="notice" hidden></div>
+  <main id="main"><div class="empty">Loading the 2026 calendar…</div></main>
+</div>
+
+<div id="scrim" class="scrim" hidden></div>
+<aside id="drawer" class="drawer" hidden aria-label="Event details"></aside>
+<div id="toast" class="toast" hidden></div>
+
+<script src="config.js"></script>
+<script src="vendor/msal-browser.min.js"></script>
+<script src="data.js"></script>
+<script>
+const CATS = {
+  raceday:{name:"Race day / stakes"},
+  sale:{name:"Sale"},
+  meet:{name:"Race meet"},
+  tack:{name:"Under tack show"},
+  digital:{name:"Digital sale"}
+};
+const STATUSES = [["planned","Planned"],["scheduled","Shoot booked"],["shot","Filmed"],["posted","Posted"]];
+const STARTERS = {
+  sale:["Vans arriving at the sale grounds","Loading a purchased horse after the hammer falls","Driver with buyer or consignor at the barn","Wide shot of the sale pavilion / ring","Van pulling out with the day's buys"],
+  meet:["Van pulling onto the backstretch","Unloading at the stable gate","Driver prepping the van (bedding, water, hay)","Grandstand / crowd atmosphere","Sallee van with track signage in frame"],
+  raceday:["Van arrivals the morning of the race","Shipping in a starter (with trainer OK)","Driver interview or quick hello","Big-day atmosphere: crowd, hats, paddock","Post-race: loading out and heading home"],
+  tack:["Horses breezing on the track (early light)","Vans staged near the sale barns","Behind-the-scenes: drivers and grooms at work"],
+  digital:["Graphic post announcing the sale dates","Clip of a past delivery for an online buyer","'We ship from anywhere' route/map graphic"]
+};
+/* Venue registry. code = Equibase track / sale-company abbreviation.
+   To add a logo, put the image in logos/ and its path in logo: ""; if the logo sits on a colored background, put that color in bg. */
+const VENUES={
+  "Keeneland":{code:"KEE",bg:"#0f553d",logo:"logos/kee.jpg"},
+  "Fasig-Tipton":{code:"FT",logo:"logos/ft.png"},
+  "OBS":{code:"OBS",logo:"logos/obs.jpg"},
+  "Churchill Downs":{code:"CD",logo:"logos/cd.jpg"},
+  "Saratoga":{code:"SAR",bg:"#e2343e",logo:"logos/sar.jpg"},
+  "Belmont Park":{code:"BEL",bg:"#125738",logo:"logos/bel.jpg"},
+  "Turfway":{code:"TP",logo:"logos/tp.jpg"},
+  "Ellis Park":{code:"ELP",logo:"logos/elp.jpg"},
+  "Kentucky Downs":{code:"KD",logo:"logos/kd.jpg"},
+  "Oaklawn Park":{code:"OP",logo:"logos/op.jpg"},
+  "Fair Grounds":{code:"FG",logo:"logos/fg.jpg"},
+  "Woodbine":{code:"WO",logo:"logos/wo.jpg"},
+  "Monmouth Park":{code:"MTH",logo:"logos/mth.jpg"},
+  "Laurel Park":{code:"LRL",logo:"logos/lrl.jpg"}
+};
+/* Event-specific logos override the venue logo (matched on the event title). */
+const EVENT_LOGOS=[
+  {match:/breeders.? cup/i,year:"2026",name:"Breeders' Cup",code:"BC",bg:"#a478da",logo:"logos/breeders-cup-2026.jpg"}
+];
+/* Other names people type for a venue — matched without caring about case, spaces or dashes. */
+const VENUE_ALIASES={
+  "Belmont Park":["Belmont","Belmont at the Big A","Belmont at Aqueduct","Aqueduct","Big A"], /* Aqueduct closed; old events keep their name */
+  "Fasig-Tipton":["Fasig Tipton","Fasig"],
+  "OBS":["Ocala Breeders' Sales","Ocala Breeders Sales","Ocala"],
+  "Turfway":["Turfway Park"],
+  "Churchill Downs":["Churchill"],
+  "Saratoga":["Saratoga Race Course","Saratoga Racecourse"],
+  "Kentucky Downs":["KY Downs"],
+  "Laurel Park":["Laurel"],
+  "Oaklawn Park":["Oaklawn"],
+  "Monmouth Park":["Monmouth"],
+  "Fair Grounds":["Fairgrounds","Fair Grounds Race Course","Fairgrounds Race Course"],
+  "Woodbine":["Woodbine Racetrack"]
+};
+const norm=x=>String(x||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+const VENUE_INDEX=(()=>{const m={};for(const k of Object.keys(VENUES)){m[norm(k)]=k;m[norm(VENUES[k].code)]=k;for(const a of VENUE_ALIASES[k]||[])m[norm(a)]=k}return m})();
+function venueInfo(name){const k=VENUE_INDEX[norm(name)];return k?VENUES[k]:null}
+function badge(venue,title,start){
+  const ev=title&&EVENT_LOGOS.find(x=>x.match.test(title)&&(!x.year||String(start||"").startsWith(x.year)));
+  const v=ev||venueInfo(venue); if(ev)venue=ev.name;
+  if(v&&v.logo)return `<span class="badge logo" title="${esc(venue)}"${v.bg?` style="background:${v.bg};border-color:${v.bg};padding:2px"`:""}><img src="${v.logo}" alt="${esc(venue)}"></span>`;
+  const code=v?v.code:(String(venue||"?").split(/\s+/).map(w=>w[0]).join("").slice(0,3).toUpperCase()||"?");
+  return `<span class="badge" title="${esc(venue||"No venue")}" aria-hidden="true"><b>${esc(code)}</b></span>`;
+}
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const daysBetween=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const TODAY=iso(new Date());
+
+const Store=window.CalendarStore;
+const S={pending:0,events:new Map(),loaded:false,view:"timeline",cats:new Set(Object.keys(CATS)),venue:"all",q:"",past:false,
+  month:(()=>{const d=new Date();return {y:d.getFullYear(),m:d.getMonth()}})(),sel:TODAY,open:null,draft:null,canWrite:true,db:null};
+
+try{const p=JSON.parse(localStorage.getItem("sallee-cal-prefs")||"{}");if(p.view)S.view=p.view;if(p.past)S.past=true;}catch(e){}
+function savePrefs(){try{localStorage.setItem("sallee-cal-prefs",JSON.stringify({view:S.view,past:S.past}))}catch(e){}}
+
+function fmtRange(e){
+  const a=parse(e.start),b=parse(e.end||e.start);
+  if(e.start===e.end||!e.end) return `${DOW[a.getDay()]}, ${MON[a.getMonth()]} ${a.getDate()}`;
+  if(a.getMonth()===b.getMonth()) return `${MON[a.getMonth()]} ${a.getDate()}–${b.getDate()}`;
+  return `${MON[a.getMonth()]} ${a.getDate()} – ${MON[b.getMonth()]} ${b.getDate()}`;
+}
+function list(){return [...S.events.values()].sort((a,b)=>a.start.localeCompare(b.start)||(b.marquee-a.marquee)||a.title.localeCompare(b.title))}
+function matches(e){
+  if(!S.cats.has(e.category))return false;
+  if(S.venue!=="all"&&e.venue!==S.venue)return false;
+  if(S.q){const q=S.q.toLowerCase();if(!(`${e.title} ${e.venue} ${e.location} ${e.notes}`.toLowerCase().includes(q)))return false}
+  return true;
+}
+const isPast=e=>(e.end||e.start)<TODAY;
+const isLive=e=>e.start<=TODAY&&(e.end||e.start)>=TODAY;
+
+function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2200)}
+
+/* ---------- next up ---------- */
+function renderNext(){
+  const up=list().filter(e=>!isPast(e));
+  const star=up.find(e=>e.marquee);
+  const soon=up.filter(e=>!(daysBetween(e.start,e.end||e.start)>21&&e.start<TODAY)).slice(0,5);
+  let html="";
+  if(star){const d=Math.max(0,daysBetween(TODAY,star.start));
+    html+=`<button class="feature" data-id="${star.id}"><span class="fhead"><span class="lbl">Next marquee event</span>${badge(star.venue,star.title,star.start)}</span>
+      <span class="count">${d===0?"Today":d}${d>0?`<span>day${d===1?"":"s"} out</span>`:""}</span>
+      <span class="t">${esc(star.title)}</span><span class="s">${esc(fmtRange(star))} · ${esc(star.location)}</span></button>`;}
+  else html+=`<div class="feature"><span class="lbl">Next marquee event</span><span class="t">None left on the calendar</span></div>`;
+  html+=`<div class="soon"><h2>Next up</h2><ol>${soon.map(e=>{const d=daysBetween(TODAY,e.start);
+    return `<li><button data-id="${e.id}" class="cc-${e.category}"><span class="d" style="border-left:4px solid var(--cc);padding-left:6px">${MON[parse(e.start).getMonth()]} ${parse(e.start).getDate()}</span>${badge(e.venue,e.title,e.start)}<span class="n">${esc(e.title)}</span><span class="in">${d<=0?"now":d===1?"tomorrow":"in "+d+"d"}</span></button></li>`}).join("")||`<li class="hint">Nothing coming up.</li>`}</ol></div>`;
+  $("nextup").innerHTML=html;
+}
+
+/* ---------- toolbar ---------- */
+function renderToolbar(){
+  $("vTimeline").setAttribute("aria-pressed",S.view==="timeline");
+  $("vMonth").setAttribute("aria-pressed",S.view==="month");
+  $("past").checked=S.past;
+  $("past").parentElement.hidden=S.view==="month";
+  const all=list();
+  $("chips").innerHTML=Object.entries(CATS).map(([k,c])=>`<button class="chip cc-${k}" data-cat="${k}" aria-pressed="${S.cats.has(k)}"><span class="dot"></span>${c.name}<span class="k">${all.filter(e=>e.category===k).length}</span></button>`).join("");
+  const venues=[...new Set(all.map(e=>e.venue).filter(Boolean))].sort();
+  if(S.venue!=="all"&&!venues.includes(S.venue))S.venue="all";
+  $("venue").innerHTML=`<option value="all">All venues</option>`+venues.map(v=>`<option ${v===S.venue?"selected":""}>${esc(v)}</option>`).join("");
+  $("venueList")&&($("venueList").innerHTML=venues.map(v=>`<option value="${esc(v)}">`).join(""));
+  $("addBtn").hidden=!S.canWrite;
+  $("recipLink").hidden=!(S.canWrite&&Store.recipientsUrl);if(Store.recipientsUrl)$("recipLink").href=Store.recipientsUrl;
+  $("spLink").hidden=!(S.canWrite&&Store.listUrl);if(Store.listUrl)$("spLink").href=Store.listUrl;$("rollBtn").hidden=!S.canWrite||!S.events.size;
+  const yrs=years();$("seasons").textContent=yrs.length?(yrs.length>1?"Seasons "+yrs.join(" · "):yrs[0]+" season"):"";
+}
+
+function tagsFor(e){
+  const n=(e.shots||[]).length,done=(e.shots||[]).filter(s=>s.done).length;
+  const st=STATUSES.find(s=>s[0]===e.status)||STATUSES[0];
+  return `${isLive(e)?`<span class="tag live">On now</span>`:""}${e.marquee?`<span class="tag star">Marquee</span>`:""}${e.tbc?`<span class="tag tbc">Dates TBC</span>`:""}<span class="tag cat">${CATS[e.category]?.name||e.category}</span><span class="tag st-${st[0]}">${st[1]}</span>${n?`<span class="tag shots">${done}/${n} shots</span>`:""}`;
+}
+function rowHTML(e){
+  const a=parse(e.start),multi=e.end&&e.end!==e.start;
+  return `<button class="row cc-${e.category} ${isPast(e)?"past":""}" data-id="${e.id}">
+    <span class="date"><b>${MON[a.getMonth()]} ${a.getDate()}</b><i>${multi?"→ "+MON[parse(e.end).getMonth()]+" "+parse(e.end).getDate():DOW[a.getDay()]}</i></span>
+    ${badge(e.venue,e.title,e.start)}
+    <span style="min-width:0"><div class="title">${esc(e.title)}</div><div class="meta">${esc(e.location||"")}${e.notes?" · "+esc(e.notes.length>70?e.notes.slice(0,70)+"…":e.notes):""}</div></span>
+    <span class="tags">${tagsFor(e)}</span></button>`;
+}
+
+/* ---------- timeline ---------- */
+function renderTimeline(){
+  let evs=list().filter(matches);
+  if(!S.past)evs=evs.filter(e=>!isPast(e));
+  if(!evs.length)return `<div class="empty">No events match these filters.${S.past?"":" Turn on “Show past” to see earlier events."}</div>`;
+  const groups=new Map();
+  for(const e of evs){
+    // ongoing long meets show under the current month so they stay in view
+    const key=(!S.past&&e.start<TODAY)?TODAY.slice(0,7):e.start.slice(0,7);
+    if(!groups.has(key))groups.set(key,[]);groups.get(key).push(e);
+  }
+  let html="",drewToday=false;
+  for(const [k,g] of [...groups.entries()].sort()){
+    const [y,m]=k.split("-").map(Number);
+    let rows="";
+    for(const e of g){
+      if(S.past&&!drewToday&&e.start>=TODAY&&k===TODAY.slice(0,7)){rows+=`</div><div class="todayline">Today · ${MON[+TODAY.slice(5,7)-1]} ${+TODAY.slice(8)}</div><div class="rows" style="margin-top:6px">`;drewToday=true}
+      rows+=rowHTML(e);
+    }
+    html+=`<section class="month"><h3>${MONTHS[m-1]} <span>${y} · ${g.length} event${g.length>1?"s":""}</span></h3><div class="rows">${rows}</div></section>`;
+  }
+  return html;
+}
+
+/* ---------- month ---------- */
+function renderMonth(){
+  const {y,m}=S.month;
+  const first=new Date(y,m,1),start=new Date(y,m,1-first.getDay());
+  const mStart=iso(first),mEnd=iso(new Date(y,m+1,0));
+  const evs=list().filter(matches);
+  const LONG=14;
+  const running=evs.filter(e=>daysBetween(e.start,e.end||e.start)>LONG&&e.start<=mEnd&&(e.end||e.start)>=mStart);
+  const onDay=d=>evs.filter(e=>{const end=e.end||e.start;if(d<e.start||d>end)return false;return daysBetween(e.start,end)<=LONG||d===e.start||d===end});
+  let cells=DOW.map(d=>`<div class="dow">${d}</div>`).join("");
+  for(let i=0;i<42;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);const ds=iso(d);
+    if(i>=35&&d.getMonth()!==m)break;
+    const es=onDay(ds);
+    cells+=`<button class="day ${d.getMonth()!==m?"out":""} ${ds===TODAY?"today":""} ${ds===S.sel?"sel":""}" data-day="${ds}" aria-label="${MONTHS[d.getMonth()]} ${d.getDate()}, ${es.length} events">
+      <span class="num">${d.getDate()}</span>${es.slice(0,3).map(e=>`<span class="ev cc-${e.category}">${esc(shortName(e))}</span>`).join("")}${es.length>3?`<span class="more">+${es.length-3} more</span>`:""}</button>`;
+  }
+  const sel=onDayAll(evs,S.sel);
+  const sd=parse(S.sel);
+  return `<div class="cal-head"><button class="btn" id="prevM" aria-label="Previous month">‹</button><h3>${MONTHS[m]} ${y}</h3><button class="btn" id="nextM" aria-label="Next month">›</button></div>
+    ${running.length?`<div class="running">Running all month:${running.map(e=>`<button class="cc-${e.category}" data-id="${e.id}">${esc(e.title)} <span class="mono" style="font-weight:400">${esc(fmtRange(e))}</span></button>`).join("")}</div>`:""}
+    <div class="grid-scroll"><div class="grid">${cells}</div></div>
+    <div class="legend">${Object.entries(CATS).map(([k,c])=>`<span class="cc-${k}"><span class="dot"></span>${c.name}</span>`).join("")}</div>
+    <div class="daylist"><h4>${DOW[sd.getDay()]}, ${MONTHS[sd.getMonth()]} ${sd.getDate()}</h4><div class="rows">${sel.map(rowHTML).join("")||`<div class="hint">Nothing on this day.</div>`}</div></div>`;
+}
+const onDayAll=(evs,d)=>evs.filter(e=>d>=e.start&&d<=(e.end||e.start));
+function shortName(e){return e.title.replace(/^Fasig-Tipton/,"FT").replace(/ – /," · ")}
+
+function render(){
+  renderToolbar();renderNext();
+  if(!S.loaded)return;
+  if(!S.events.size){$("main").innerHTML=`<div class="empty">No events yet. Use “+ Add event” to put the first one on the calendar.</div>`;return}
+  $("main").innerHTML=S.view==="timeline"?renderTimeline():renderMonth();
+  if(S.open&&!S.draft&&!S.events.has(S.open))closeDrawer();
+}
+
+/* ---------- drawer ---------- */
+function openDrawer(id){S.open=id;S.draft=null;S.roll=null;S.armed=false;drawDrawer();$("drawer").hidden=false;$("scrim").hidden=false;}
+function openNew(){
+  const d=S.view==="month"?S.sel:TODAY;
+  S.open=null;S.draft={title:"",venue:"",category:"sale",start:d,end:d,location:"",notes:"",marquee:false,status:"planned",shots:[]};
+  drawDrawer();$("drawer").hidden=false;$("scrim").hidden=false;setTimeout(()=>$("f-title")?.focus(),30);
+}
+function years(){return [...new Set(list().map(e=>e.start.slice(0,4)))].sort()}
+function addYear(d){const [y,m,dd]=d.split("-");return (m==="02"&&dd==="29")?`${+y+1}-02-28`:`${+y+1}-${m}-${dd}`}
+function findCopy(id,yr){return list().find(x=>x.copiedFrom===id&&x.start.startsWith(String(yr)))}
+async function copyEvent(e,id){
+  const {id:_,...body}=e;
+  const doc={...body,start:addYear(e.start),end:addYear(e.end||e.start),status:"planned",tbc:true,copiedFrom:id,
+    shots:(e.shots||[]).map(s=>({text:s.text,done:false}))};
+  const newId=await Store.create(doc);S.events.set(newId,{...doc,id:newId});return newId;
+}
+function drawRoll(){
+  const R=S.roll,yrs=years(),src=R.src||yrs.slice(-1)[0],tgt=+src+1;
+  const evs=list().filter(e=>e.start.startsWith(src));const todo=evs.filter(e=>!findCopy(e.id,tgt));
+  $("drawer").className="drawer";
+  $("drawer").innerHTML=`<div class="dr-top"><span class="k">Plan next year</span><button class="x" id="closeDr" aria-label="Close">×</button></div>
+  <div class="dr-body roll">
+    <div class="field"><label for="rollSel">Copy events from</label><select id="rollSel">${yrs.map(y=>`<option ${y===src?"selected":""}>${y}</option>`).join("")}</select></div>
+    <p class="big">${todo.length} event${todo.length===1?"":"s"} → ${tgt}</p>
+    <p>Each ${src} event is copied to the same date in ${tgt} and tagged <span class="tag tbc">Dates TBC</span> until someone checks "Dates confirmed". Venues, logos, shot lists and notes carry over. Status resets to Planned and shot checkmarks are cleared.</p>
+    ${evs.length-todo.length?`<p class="hint">${evs.length-todo.length} already copied to ${tgt} and will be skipped.</p>`:""}
+    <p class="hint">Racing dates move around year to year (a Saturday stakes lands on a different date), so update each one as the ${tgt} schedules come out. Events that don't return can be deleted.</p>
+    <div class="dr-foot"><span class="hint" style="align-self:center">${esc(R.msg)}</span><button class="btn primary" id="rollGo" ${!todo.length||R.busy?"disabled":""}>${R.busy?"Copying…":`Copy ${todo.length} to ${tgt}`}</button></div>
+  </div>`;
+  $("rollSel").onchange=ev=>{S.roll.src=ev.target.value;S.roll.msg="";drawRoll()};
+}
+async function rollOver(){
+  const R=S.roll,src=R.src||years().slice(-1)[0],tgt=+src+1;
+  const todo=list().filter(e=>e.start.startsWith(src)&&!findCopy(e.id,tgt));
+  R.busy=true;let n=0;drawRoll();
+  for(const e of todo){try{await copyEvent(e,e.id);n++;R.msg=`Copied ${n} of ${todo.length}`;drawRoll()}catch(err){R.busy=false;R.msg="Stopped after "+n+". Run it again to finish.";drawRoll();handleWriteErr(err);return}}
+  R.busy=false;R.msg="";toast(`${n} events copied to ${tgt}`);S.month={y:tgt,m:0};render();closeDrawer();
+}
+function closeDrawer(){S.open=null;S.draft=null;S.roll=null;$("drawer").hidden=true;$("scrim").hidden=true}
+function cur(){return S.draft||S.events.get(S.open)}
+
+function drawDrawer(){
+  if(S.roll)return drawRoll();
+  const e=cur();if(!e)return;
+  const ro=S.canWrite?"":"disabled";
+  const scroll=$("drawer").querySelector(".dr-body")?.scrollTop||0;
+  const ae=document.activeElement?.id;
+  $("drawer").className="drawer cc-"+e.category;
+  $("drawer").innerHTML=`<div class="dr-top"><span class="who">${badge(e.venue,e.title,e.start)}<span class="k">${S.draft?"New event":esc(CATS[e.category]?.name||"Event")}${isLive(e)?" · on now":""}</span></span><button class="x" id="closeDr" aria-label="Close">×</button></div>
+  <div class="dr-body">
+    <div class="field"><label for="f-title">Event</label><input id="f-title" class="ttl" type="text" value="${esc(e.title)}" ${ro} placeholder="e.g. Keeneland – Fall Meet Opening Day"></div>
+    <div class="two">
+      <div class="field"><label for="f-start">Starts</label><input id="f-start" type="date" value="${e.start}" ${ro}></div>
+      <div class="field"><label for="f-end">Ends</label><input id="f-end" type="date" value="${e.end||e.start}" ${ro}></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="f-cat">Type</label><select id="f-cat" ${ro}>${Object.entries(CATS).map(([k,c])=>`<option value="${k}" ${k===e.category?"selected":""}>${c.name}</option>`).join("")}</select></div>
+      <div class="field"><label for="f-venue">Venue</label><input id="f-venue" type="text" list="venueList" value="${esc(e.venue)}" ${ro}><datalist id="venueList"></datalist></div>
+    </div>
+    <div class="field"><label for="f-loc">Location</label><input id="f-loc" type="text" value="${esc(e.location)}" ${ro} placeholder="City, State"></div>
+    ${S.draft?"":`<label class="check" style="color:var(--ink)"><input id="f-conf" type="checkbox" ${e.tbc?"":"checked"} ${ro}> Dates confirmed for this year</label>`}
+    <label class="check" style="color:var(--ink)"><input id="f-star" type="checkbox" ${e.marquee?"checked":""} ${ro}> Marquee event (top priority for footage)</label>
+    <div class="field"><span class="flabel">Footage status</span><div class="status" role="group" aria-label="Footage status">${STATUSES.map(([k,n])=>`<button data-status="${k}" aria-pressed="${(e.status||"planned")===k}" ${ro}>${n}</button>`).join("")}</div></div>
+    <div class="field"><span class="flabel">Shot list</span>
+      <ul class="shots">${(e.shots||[]).map((s,i)=>`<li class="${s.done?"done":""}"><input type="checkbox" id="shot-${i}" data-shot="${i}" ${s.done?"checked":""} ${ro} aria-label="Mark shot done"><span>${esc(s.text)}</span>${S.canWrite?`<button class="rm" data-rmshot="${i}" aria-label="Remove shot">×</button>`:""}</li>`).join("")}</ul>
+      ${S.canWrite?`<form class="addshot" id="addShot"><input id="f-shot" type="text" placeholder="Add a shot, angle or post idea"><button class="btn">Add</button></form>
+      ${!(e.shots||[]).length?`<button class="btn" id="starter" style="justify-self:start">Add starter shots for a ${esc((CATS[e.category]?.name||"").toLowerCase())}</button>`:""}`:""}
+      ${!(e.shots||[]).length&&!S.canWrite?`<span class="hint">No shots listed yet.</span>`:""}
+    </div>
+    <div class="field"><label for="f-notes">Notes · contacts, parking, credentials, timing</label><textarea id="f-notes" ${ro}>${esc(e.notes)}</textarea></div>
+    ${S.canWrite?`<div class="dr-foot">${S.draft?`<span></span><button class="btn primary" id="create">Add to calendar</button>`:`<button class="btn danger ${S.armed?"armed":""}" id="del">${S.armed?"Tap again to delete":"Delete event"}</button><button class="btn" id="copyNext">Copy to ${+e.start.slice(0,4)+1}</button>`}</div>`:""}
+  </div>`;
+  $("venueList").innerHTML=[...new Set([...Object.keys(VENUES),...list().map(x=>x.venue)].filter(Boolean))].sort().map(v=>`<option value="${esc(v)}">`).join("");
+  $("drawer").querySelector(".dr-body").scrollTop=scroll;
+  if(ae&&$(ae)&&ae!=="closeDr")$(ae).focus();
+}
+
+async function write(patch){
+  const e=cur();if(!e)return;
+  if(S.draft){Object.assign(S.draft,patch);drawDrawer();return}
+  const id=S.open;
+  const next={...e,...patch};delete next.id;
+  S.events.set(id,{...next,id});render();drawDrawer();
+  S.pending++;
+  try{await Store.update(id,patch)}
+  catch(err){handleWriteErr(err);refresh()}
+  finally{S.pending--}
+}
+function handleWriteErr(err){
+  if(err&&(err.status===403||err.status===401)){setReadOnly();render();drawDrawer()}
+  else if(err&&err.status===404){toast("That event was removed by someone else");refresh()}
+  else toast("Couldn't save that change. Try again in a moment.");
+}
+
+document.addEventListener("click",async ev=>{
+  const t=ev.target.closest("button");if(!t)return;
+  if(t.dataset.id){openDrawer(t.dataset.id);return}
+  if(t.dataset.cat){const k=t.dataset.cat;
+    if(S.cats.size===Object.keys(CATS).length){S.cats=new Set([k])} else if(S.cats.has(k)){S.cats.delete(k);if(!S.cats.size)S.cats=new Set(Object.keys(CATS))} else S.cats.add(k);
+    render();return}
+  if(t.dataset.day){S.sel=t.dataset.day;const d=parse(S.sel);if(d.getMonth()!==S.month.m){S.month={y:d.getFullYear(),m:d.getMonth()}}render();return}
+  if(t.id==="vTimeline"||t.id==="vMonth"){S.view=t.id==="vMonth"?"month":"timeline";savePrefs();render();return}
+  if(t.id==="prevM"||t.id==="nextM"){let {y,m}=S.month;m+=t.id==="nextM"?1:-1;if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};S.sel=iso(new Date(y,m,1));render();return}
+  if(t.id==="signIn"){Store.signIn();return}
+  if(t.id==="signOut"){Store.signOut();return}
+  if(t.id==="runSetup"){t.disabled=true;try{const n=await Store.setup(m=>{$("setupMsg").textContent=m});toast(n+" events ready");location.reload()}catch(err){t.disabled=false;$("setupMsg").textContent=explain(err)}return}
+  if(t.id==="addBtn"){openNew();return}
+  if(t.id==="rollBtn"){S.open=null;S.draft=null;S.roll={src:years().slice(-1)[0],busy:false,msg:""};drawDrawer();$("drawer").hidden=false;$("scrim").hidden=false;return}
+  if(t.id==="rollSrc"){return}
+  if(t.id==="rollGo"){rollOver();return}
+  if(t.id==="copyNext"){const e=cur();const ex=findCopy(S.open,+e.start.slice(0,4)+1);if(ex){openDrawer(ex.id);toast("Already copied, opened the "+ex.start.slice(0,4)+" version");return}
+    try{const id=await copyEvent(e,S.open);toast("Copied to "+(+e.start.slice(0,4)+1)+". Confirm the dates when they're out");openDrawer(id)}catch(err){handleWriteErr(err)}return}
+  if(t.id==="closeDr"){closeDrawer();return}
+  if(t.dataset.status){write({status:t.dataset.status});return}
+  if(t.dataset.rmshot){const s=[...(cur().shots||[])];s.splice(+t.dataset.rmshot,1);write({shots:s});return}
+  if(t.id==="starter"){const e=cur();write({shots:(STARTERS[e.category]||[]).map(text=>({text,done:false}))});return}
+  if(t.id==="del"){
+    if(!S.armed){S.armed=true;drawDrawer();setTimeout(()=>{if(S.armed){S.armed=false;if(!$("drawer").hidden)drawDrawer()}},4000);return}
+    const id=S.open;closeDrawer();
+    S.pending++;try{await Store.remove(id);S.events.delete(id);render();toast("Event deleted")}catch(err){handleWriteErr(err)}finally{S.pending--}
+    return}
+  if(t.id==="create"){
+    const d=S.draft;
+    if(!d.title.trim()){toast("Give the event a name first");$("f-title").focus();return}
+    if(d.end<d.start)d.end=d.start;
+    S.pending++;try{const body={...d,title:d.title.trim()};const id=await Store.create(body);S.events.set(id,{...body,id});closeDrawer();toast("Added to the calendar");render()}
+    catch(err){handleWriteErr(err)}finally{S.pending--}
+  }
+});
+$("scrim").addEventListener("click",closeDrawer);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("drawer").hidden)closeDrawer()});
+document.addEventListener("submit",e=>{if(e.target.id==="addShot"){e.preventDefault();const v=$("f-shot").value.trim();if(!v)return;write({shots:[...(cur().shots||[]),{text:v,done:false}]});setTimeout(()=>$("f-shot")?.focus(),0)}});
+document.addEventListener("change",e=>{
+  const t=e.target;if(!t.closest("#drawer"))return;
+  if(t.dataset.shot!==undefined){const s=(cur().shots||[]).map((x,i)=>i===+t.dataset.shot?{...x,done:t.checked}:x);write({shots:s});return}
+  const map={"f-title":"title","f-venue":"venue","f-loc":"location","f-notes":"notes","f-cat":"category","f-start":"start","f-end":"end"};
+  if(t.id==="f-star")return write({marquee:t.checked});
+  if(t.id==="f-conf")return write({tbc:!t.checked});
+  if(map[t.id]){
+    let v=t.value; if(t.id==="f-title"&&!S.draft&&!v.trim()){t.value=cur().title;return}
+    const patch={[map[t.id]]:t.type==="text"||t.tagName==="TEXTAREA"?v.trim():v};
+    if(t.id==="f-start"){if(!v)return;const end=cur().end||cur().start;if(end<v)patch.end=v}
+    if(t.id==="f-end"){if(!v||v<cur().start)patch.end=cur().start}
+    write(patch);
+  }
+});
+$("q").addEventListener("input",e=>{S.q=e.target.value.trim();render()});
+$("venue").addEventListener("change",e=>{S.venue=e.target.value;render()});
+$("past").addEventListener("change",e=>{S.past=e.target.checked;savePrefs();render()});
+
+(function(){const d=new Date();$("todayLbl").textContent=`${DOW[d.getDay()]}, ${MON[d.getMonth()]} ${d.getDate()}`})();
+render();
+
+function gate(html){$("main").innerHTML=`<div class="empty gate">${html}</div>`}
+function explain(e){
+  const st=e&&e.status;
+  if(st===401||st===403)return "Your Microsoft account doesn't have access to the Social Media & Marketing SharePoint site. Ask Manu to add you to the site.";
+  if(st===404)return "The SharePoint site or list set in config.js wasn't found. Check siteHost, sitePath and the list names.";
+  return (e&&(e.errorMessage||e.message))||"Something went wrong.";
+}
+function setReadOnly(){
+  S.canWrite=false;$("notice").hidden=false;
+  $("notice").textContent="View-only: you can look at the calendar but not change it. To edit, ask Manu to add you as a Member of the Social Media & Marketing site.";
+}
+async function refresh(){
+  if(S.pending||Store.mode!=="sharepoint"&&S.loaded)return;
+  try{
+    const m=await Store.load();if(S.pending)return;
+    S.events=m;S.loaded=true;render();
+    if(S.open&&!S.draft&&S.events.has(S.open)&&!document.activeElement?.matches("#drawer input,#drawer textarea,#drawer select"))drawDrawer();
+  }catch(e){if(!S.loaded){S.loaded=true;gate(`<h2>Couldn't load events</h2><p>${esc(explain(e))}</p><button class="btn" onclick="location.reload()">Try again</button>`)}else toast("Couldn't reach SharePoint. Will retry shortly.")}
+}
+(async()=>{
+  try{
+    const state=await Store.init();
+    if(Store.user){$("who").textContent=Store.user;$("signOut").hidden=false}
+    if(Store.mode==="demo"){$("notice").hidden=false;$("notice").textContent="Demo mode: config.js isn't filled in yet, so these are the sample events and nothing is saved."}
+    if(state==="signedOut"){S.loaded=true;S.canWrite=false;renderToolbar();gate(`<h2>Sign in to see the calendar</h2><p>Use your Sallee Microsoft 365 account.</p><button class="btn primary" id="signIn">Sign in with Microsoft</button>`);return}
+    if(state==="setup"){S.loaded=true;S.canWrite=false;renderToolbar();gate(`<h2>One-time setup</h2><p>The calendar's lists aren't on the SharePoint site yet. A site owner can create them and import the events from events.json. This asks for one extra Microsoft permission the first time.</p><button class="btn primary" id="runSetup">Create lists and import events</button><p class="hint" id="setupMsg"></p>`);return}
+    if(Store.canWrite===false)setReadOnly();
+    await refresh();
+    if(Store.mode==="sharepoint"){
+      setInterval(()=>{if(!document.hidden)refresh()},((window.SALLEE_CAL_CONFIG||{}).pollSeconds||60)*1000);
+      document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh()});
+    }
+  }catch(e){S.loaded=true;renderToolbar();gate(`<h2>Couldn't open the calendar</h2><p>${esc(explain(e))}</p><button class="btn" onclick="location.reload()">Try again</button>`)}
+})();
+</script>
+</body>
+</html>
