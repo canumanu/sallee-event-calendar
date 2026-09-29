@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/32817762/README.md)
 # Sallee Event Calendar
 
 The racing and sales calendar for Sallee's social media team. The page is hosted on GitHub Pages and people sign in with their Sallee Microsoft 365 account. The events live in a SharePoint list on the **Social Media & Marketing** site. The site's own permissions decide who can edit and who can only view, and Power Automate sends a reminder one week before each event.
@@ -20,8 +21,10 @@ GitHub Pages (this repo)  ──sign-in──▶  Microsoft 365
 | `config.js` | Your tenant, site and list settings. This is the only file you edit. |
 | `data.js` | Sign-in and the SharePoint read/write code |
 | `events.json` | The 2026 events, imported into SharePoint on first run |
-| `logos/` | Venue logos (internal use only) |
-| `vendor/msal-browser.min.js` | Microsoft's sign-in library (v3.28.1), stored here so the page doesn't depend on a third-party CDN |
+| `msal-browser.min.js` | Microsoft's sign-in library (v3.28.1), stored here so the page doesn't depend on a third-party CDN |
+| `msal-LICENSE.txt` | Its license |
+
+The venue logos are built into `index.html`, so there are no folders to upload. Every file sits at the top level of the repo.
 
 If you open the page before `config.js` is filled in, it runs in **demo mode** with the sample events and saves nothing. That's handy for checking the page before you connect it.
 
@@ -146,6 +149,6 @@ A good way to start is with email and Teams, then add Twilio if people still wan
 
 - On the calendar, click **Plan next year**. It copies the season forward with **Dates TBC** tags.
 - As the new schedules come out, fix each event's dates and tick **Dates confirmed**.
-- To add a new venue logo, save it as `logos/<code>.jpg` and add a line to `VENUES` in `index.html`. Event-only logos (like the Breeders' Cup) go in `EVENT_LOGOS` with the year.
+- To add a new venue logo, send the image to Claude to convert. It goes in `VENUES` in `index.html`. Event-only logos (like the Breeders' Cup) go in `EVENT_LOGOS` with the year.
 
 Logos are other companies' trademarks, used here only to label events on an internal tool. Don't use them in public posts without the venue's permission.
