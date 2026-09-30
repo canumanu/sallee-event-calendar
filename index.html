@@ -13,8 +13,8 @@
 :root{
   --bg:#f3f5f2; --surface:#ffffff; --surface-2:#eaeee9; --ink:#15201b; --muted:#5b6861; --line:#d9dfd9;
   --accent:#0e5a41; --accent-ink:#ffffff; --focus:#2a6fdb;
-  --c-meet:#2f7a55; --c-raceday:#b1263a; --c-sale:#2856a3; --c-digital:#6b5fa8; --c-tack:#a86b12;
-  --c-meet-bg:#e3f1e9; --c-raceday-bg:#f8e3e6; --c-sale-bg:#e3eaf7; --c-digital-bg:#ece9f6; --c-tack-bg:#f7ecd9;
+  --c-meet:#2f7a55; --c-raceday:#b1263a; --c-sale:#2856a3; --c-digital:#6b5fa8; --c-tack:#a86b12; --c-recruiting:#0e7a82;
+  --c-meet-bg:#e3f1e9; --c-raceday-bg:#f8e3e6; --c-sale-bg:#e3eaf7; --c-digital-bg:#ece9f6; --c-tack-bg:#f7ecd9; --c-recruiting-bg:#dcf1f2;
   --ok:#2f7a55; --warn:#a86b12; --danger:#b1263a;
   --shadow:0 10px 40px rgba(15,30,22,.18);
   --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
@@ -24,14 +24,14 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#101613; --surface:#18201c; --surface-2:#212b26; --ink:#e7ede9; --muted:#9aa89f; --line:#2c3832;
   --accent:#5cc49a; --accent-ink:#0b1a13; --focus:#7fb0ff;
-  --c-meet:#6bcf9b; --c-raceday:#f07a8a; --c-sale:#86aef0; --c-digital:#b3a8ec; --c-tack:#e9b35c;
-  --c-meet-bg:#1c3328; --c-raceday-bg:#3a1d23; --c-sale-bg:#1c2a42; --c-digital-bg:#2a2542; --c-tack-bg:#3a2d17;
+  --c-meet:#6bcf9b; --c-raceday:#f07a8a; --c-sale:#86aef0; --c-digital:#b3a8ec; --c-tack:#e9b35c; --c-recruiting:#5fcbd3;
+  --c-meet-bg:#1c3328; --c-raceday-bg:#3a1d23; --c-sale-bg:#1c2a42; --c-digital-bg:#2a2542; --c-tack-bg:#3a2d17; --c-recruiting-bg:#163538;
   --ok:#6bcf9b; --warn:#e9b35c; --danger:#f07a8a; --shadow:0 10px 40px rgba(0,0,0,.5); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#101613; --surface:#18201c; --surface-2:#212b26; --ink:#e7ede9; --muted:#9aa89f; --line:#2c3832;
   --accent:#5cc49a; --accent-ink:#0b1a13; --focus:#7fb0ff;
-  --c-meet:#6bcf9b; --c-raceday:#f07a8a; --c-sale:#86aef0; --c-digital:#b3a8ec; --c-tack:#e9b35c;
-  --c-meet-bg:#1c3328; --c-raceday-bg:#3a1d23; --c-sale-bg:#1c2a42; --c-digital-bg:#2a2542; --c-tack-bg:#3a2d17;
+  --c-meet:#6bcf9b; --c-raceday:#f07a8a; --c-sale:#86aef0; --c-digital:#b3a8ec; --c-tack:#e9b35c; --c-recruiting:#5fcbd3;
+  --c-meet-bg:#1c3328; --c-raceday-bg:#3a1d23; --c-sale-bg:#1c2a42; --c-digital-bg:#2a2542; --c-tack-bg:#3a2d17; --c-recruiting-bg:#163538;
   --ok:#6bcf9b; --warn:#e9b35c; --danger:#f07a8a; --shadow:0 10px 40px rgba(0,0,0,.5); color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
@@ -188,6 +188,7 @@ select.venue{padding:7px 8px;border:1px solid var(--line);border-radius:8px;back
 .cc-sale{--cc:var(--c-sale);--cbg:var(--c-sale-bg)}
 .cc-digital{--cc:var(--c-digital);--cbg:var(--c-digital-bg)}
 .cc-tack{--cc:var(--c-tack);--cbg:var(--c-tack-bg)}
+.cc-recruiting{--cc:var(--c-recruiting);--cbg:var(--c-recruiting-bg)}
 @media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(30px);opacity:.6}}}
 /* base reset */
 html{color-scheme:light}
@@ -298,7 +299,8 @@ const CATS = {
   sale:{name:"Sale"},
   meet:{name:"Race meet"},
   tack:{name:"Under tack show"},
-  digital:{name:"Digital sale"}
+  digital:{name:"Digital sale"},
+  recruiting:{name:"Recruiting"}
 };
 const STATUSES = [["planned","Planned"],["scheduled","Shoot booked"],["shot","Filmed"],["posted","Posted"]];
 const STARTERS = {
@@ -306,7 +308,8 @@ const STARTERS = {
   meet:["Van pulling onto the backstretch","Unloading at the stable gate","Driver prepping the van (bedding, water, hay)","Grandstand / crowd atmosphere","Sallee van with track signage in frame"],
   raceday:["Van arrivals the morning of the race","Shipping in a starter (with trainer OK)","Driver interview or quick hello","Big-day atmosphere: crowd, hats, paddock","Post-race: loading out and heading home"],
   tack:["Horses breezing on the track (early light)","Vans staged near the sale barns","Behind-the-scenes: drivers and grooms at work"],
-  digital:["Graphic post announcing the sale dates","Clip of a past delivery for an online buyer","'We ship from anywhere' route/map graphic"]
+  digital:["Graphic post announcing the sale dates","Clip of a past delivery for an online buyer","'We ship from anywhere' route/map graphic"],
+  recruiting:["'Now hiring drivers' graphic with how to apply","Day-in-the-life clip of a Sallee driver","Walkthrough of a van and cab","Driver testimonial (with their OK)","Photos of the hiring booth or event table"]
 };
 /* Venue registry. code = Equibase track / sale-company abbreviation.
    To add a logo, paste an image data URI into logo: "" (ask Claude to convert the file); if the logo sits on a colored background, put that color in bg. */
@@ -352,7 +355,7 @@ function badge(venue,title,start){
   const ev=title&&EVENT_LOGOS.find(x=>x.match.test(title)&&(!x.year||String(start||"").startsWith(x.year)));
   const v=ev||venueInfo(venue); if(ev)venue=ev.name;
   if(v&&v.logo)return `<span class="badge logo" title="${esc(venue)}"${v.bg?` style="background:${v.bg};border-color:${v.bg};padding:2px"`:""}><img src="${v.logo}" alt="${esc(venue)}"></span>`;
-  const code=v?v.code:(String(venue||"?").split(/\s+/).map(w=>w[0]).join("").slice(0,3).toUpperCase()||"?");
+  const code=v?v.code:(String(venue||"").split(/\s+/).map(w=>w[0]).join("").slice(0,3).toUpperCase()||"SHV"); /* no venue (e.g. recruiting at our own yard): Sallee */
   return `<span class="badge" title="${esc(venue||"No venue")}" aria-hidden="true"><b>${esc(code)}</b></span>`;
 }
 const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
