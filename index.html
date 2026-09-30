@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -199,6 +200,45 @@ img{max-width:100%}
 a.btn{text-decoration:none;color:var(--ink);display:inline-block}
 .gate h2{font-family:var(--f-display);font-size:28px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink);margin:0 0 6px}
 .gate p{max-width:52ch;margin:6px auto 14px}
+/* ---------- sign-in cover (book) ----------
+   A deliberately single-look object: a cloth-bound cover with gold foil, same in both themes. */
+:root{--cover:#123d2f;--cover-2:#0d2f24;--foil:#d8b86a;--foil-dim:#b39852;--page:#fbfaf6;--page-ink:#1a2420;--page-muted:#5d6a63}
+.splash{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:var(--bg);padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));transition:opacity .35s ease}
+.splash.fade{opacity:0;pointer-events:none}
+.book{position:relative;width:min(440px,92vw,calc((100dvh - 48px) * .75));aspect-ratio:3/4;perspective:1800px}
+.book .page,.book .cover{position:absolute;inset:0;border-radius:6px 14px 14px 6px}
+.book .page{background:var(--page);color:var(--page-ink);box-shadow:0 20px 50px rgba(0,0,0,.25),inset 10px 0 18px -12px rgba(0,0,0,.25);display:grid;place-items:center;padding:28px;text-align:center}
+.book .page .pin{display:grid;gap:12px;justify-items:center;max-width:30ch}
+.book .page small{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--page-muted)}
+.book .page h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;text-transform:uppercase;letter-spacing:.02em;color:var(--page-ink)}
+.book .page p{margin:0;color:var(--page-muted);font-size:15px}
+.ms-btn{display:inline-flex;align-items:center;gap:10px;border:1px solid #8c8c8c;background:#fff;color:#2f2f2f;font-family:"Segoe UI",var(--f-body);font-weight:600;font-size:15px;padding:10px 16px;border-radius:4px;cursor:pointer}
+.ms-btn:hover{background:#f3f3f3}
+.ms-btn svg{width:20px;height:20px;flex:none}
+.book .cover{transform-origin:left center;transform-style:preserve-3d;cursor:pointer;border:0;padding:0;font:inherit;color:var(--foil);text-align:left;
+  background:
+    radial-gradient(120% 90% at 30% 20%,rgba(255,255,255,.07),transparent 60%),
+    repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 2px,rgba(0,0,0,.03) 2px 4px),
+    linear-gradient(160deg,var(--cover),var(--cover-2));
+  box-shadow:0 24px 60px rgba(0,0,0,.35),inset 12px 0 16px -10px rgba(0,0,0,.5),inset -2px 0 0 rgba(255,255,255,.06);overflow:hidden;backface-visibility:hidden}
+.book .cover:focus-visible{outline:3px solid var(--foil);outline-offset:4px}
+.cover .frame{position:absolute;inset:14px;border:1.5px solid var(--foil-dim);border-radius:4px 10px 10px 4px;pointer-events:none}
+.cover .frame::after{content:"";position:absolute;inset:5px;border:1px solid rgba(216,184,106,.45);border-radius:2px 7px 7px 2px}
+.cover .spine{position:absolute;left:0;top:0;bottom:0;width:18px;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(0,0,0,0));pointer-events:none}
+.cover .ttl{position:absolute;left:0;right:0;bottom:9%;display:grid;gap:6px;justify-items:center;text-align:center;pointer-events:none}
+.cover .ttl small{font-family:var(--f-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--foil-dim)}
+.cover .ttl b{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,9vw,44px);line-height:.95;letter-spacing:.04em;text-transform:uppercase;color:var(--foil);text-shadow:0 1px 0 rgba(0,0,0,.35),0 -1px 0 rgba(255,240,200,.15)}
+.cover .ttl i{font-style:normal;font-family:var(--f-mono);font-size:12px;letter-spacing:.2em;color:var(--foil-dim)}
+.cover .rule{width:46px;height:1px;background:var(--foil-dim)}
+.cover .tap{position:absolute;left:50%;bottom:3.2%;transform:translateX(-50%);font-family:var(--f-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--foil-dim);white-space:nowrap;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){.cover .tap{animation:tap 1.6s ease-in-out infinite}@keyframes tap{50%{opacity:.35}}}
+.cover.go .tap{visibility:hidden}
+.cover .tiles{position:absolute;inset:0;pointer-events:none}
+.tile{position:absolute;width:19%;aspect-ratio:1;border-radius:8px;background:#fff;display:grid;place-items:center;padding:5%;box-shadow:0 6px 14px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.4) inset;transform:translate(-50%,-50%) translateY(-130vh);will-change:transform}
+.tile img{width:100%;height:100%;object-fit:contain;display:block}
+.tile.onbg{padding:3%}
+.splash .snd{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer}
+.splash .skip{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer}
 </style>
 </head>
 <body>
@@ -621,9 +661,149 @@ async function refresh(){
     if(S.open&&!S.draft&&S.events.has(S.open)&&!document.activeElement?.matches("#drawer input,#drawer textarea,#drawer select"))drawDrawer();
   }catch(e){if(!S.loaded){S.loaded=true;gate(`<h2>Couldn't load events</h2><p>${esc(explain(e))}</p><button class="btn" onclick="location.reload()">Try again</button>`)}else toast("Couldn't reach SharePoint. Will retry shortly.")}
 }
+/* ---------- sign-in cover ----------
+   Logos tumble onto a book cover on a beat (~3.5 s), then the cover swings open onto the
+   Microsoft sign-in (or, in demo mode, onto the calendar). Tap anywhere during it to skip.
+   Sound is synthesized here with Web Audio: no audio files. */
+const Splash=(()=>{
+  const MS_ICON='<svg viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>';
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let el,cover,tiles=[],target=null,phase="idle",timers=[],ctx=null,noise=null,sound=true;
+  try{sound=localStorage.getItem("sallee-cal-sound")!=="off"}catch(e){}
+
+  function logos(){
+    const yr=String(new Date().getFullYear());
+    const list=Object.entries(VENUES).filter(([,v])=>v.logo).map(([name,v])=>({name,src:v.logo,bg:v.bg}));
+    for(const x of EVENT_LOGOS)if(x.logo&&(!x.year||x.year===yr))list.push({name:x.name,src:x.logo,bg:x.bg});
+    return list;
+  }
+  // Scatter: a jittered grid over the top ~62% of the cover, so the title stays clear.
+  function layout(n){
+    const cols=4,rows=Math.ceil(n/cols),out=[];let seed=7;
+    const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+    for(let i=0;i<n;i++){
+      const r=Math.floor(i/cols),c=i%cols,inRow=Math.min(cols,n-r*cols),off=(cols-inRow)/2;
+      const x=14+(c+off)*(72/(cols-1))+(rnd()-.5)*9;
+      const y=13+r*(44/Math.max(1,rows-1))+(rnd()-.5)*7;
+      out.push({x,y,rot:(rnd()-.5)*28,from:(rnd()-.5)*90});
+    }
+    // land in a shuffled order so it doesn't read as a typewriter
+    const order=[...out.keys()].sort(()=>rnd()-.5);
+    return order.map(i=>({...out[i],i}));
+  }
+
+  /* --- audio --- */
+  function audio(){
+    if(!sound)return null;
+    try{
+      if(!ctx){ctx=new (window.AudioContext||window.webkitAudioContext)();
+        const len=ctx.sampleRate*.2;noise=ctx.createBuffer(1,len,ctx.sampleRate);
+        const d=noise.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);}
+      if(ctx.state==="suspended")ctx.resume();
+      return ctx;
+    }catch(e){return null}
+  }
+  function env(g,t,peak,att,dec){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+att);g.gain.exponentialRampToValueAtTime(0.0001,t+att+dec)}
+  function thud(){const a=audio();if(!a)return;const t=a.currentTime+.01;
+    const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(42,t+.28);
+    env(g,t,.7,.008,.34);o.connect(g).connect(a.destination);o.start(t);o.stop(t+.4);
+    const n=a.createBufferSource(),f=a.createBiquadFilter(),ng=a.createGain();n.buffer=noise;f.type="lowpass";f.frequency.value=500;env(ng,t,.35,.004,.15);n.connect(f).connect(ng).connect(a.destination);n.start(t)}
+  const STEPS=[0,2,4,7,9,12,14,16,19,21,24,26,28,31,33,36];
+  function land(k){const a=audio();if(!a)return;const t=a.currentTime+.005,f=293.66*Math.pow(2,STEPS[k%STEPS.length]/12);
+    const o=a.createOscillator(),o2=a.createOscillator(),g=a.createGain(),g2=a.createGain();
+    o.type="triangle";o.frequency.value=f;o2.type="sine";o2.frequency.value=f*2;
+    env(g,t,.22,.004,.26);env(g2,t,.06,.004,.14);o.connect(g).connect(a.destination);o2.connect(g2).connect(a.destination);
+    o.start(t);o2.start(t);o.stop(t+.35);o2.stop(t+.25);
+    const n=a.createBufferSource(),hp=a.createBiquadFilter(),ng=a.createGain();n.buffer=noise;hp.type="highpass";hp.frequency.value=2500;env(ng,t,.08,.002,.04);n.connect(hp).connect(ng).connect(a.destination);n.start(t)}
+  function swell(){const a=audio();if(!a)return;const t=a.currentTime+.02;
+    for(const f of [293.66,369.99,440,587.33]){const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.07,t+.35);g.gain.exponentialRampToValueAtTime(0.0001,t+1.7);
+      o.connect(g).connect(a.destination);o.start(t);o.stop(t+1.8)}}
+
+  /* --- build --- */
+  function build(){
+    const year=new Date().getFullYear();
+    el=document.createElement("div");el.className="splash";el.id="splash";
+    el.innerHTML=`<button class="snd" id="sndBtn" type="button">${sound?"Sound on":"Sound off"}</button>
+      <div class="book">
+        <div class="page" id="splashPage"><div class="pin"><small>Sallee Horse Vans · Social media</small><h2>Event Calendar</h2><p>Opening…</p></div></div>
+        <button class="cover" id="cover" type="button" aria-label="Open the Sallee event calendar">
+          <span class="spine"></span><span class="frame"></span><span class="tiles" id="tiles"></span>
+          <span class="ttl"><small>Sallee Horse Vans</small><b>Event<br>Calendar</b><span class="rule"></span><i>${year} Season</i></span>
+          <span class="tap">Tap to open</span>
+        </button>
+      </div>
+      <button class="skip" id="skipBtn" type="button" hidden>Skip</button>`;
+    document.body.appendChild(el);
+    cover=el.querySelector("#cover");
+    const box=el.querySelector("#tiles"),L=logos();
+    tiles=layout(L.length).map(p=>{const lg=L[p.i];const t=document.createElement("span");
+      t.className="tile"+(lg.bg?" onbg":"");if(lg.bg)t.style.background=lg.bg;
+      t.style.left=p.x+"%";t.style.top=p.y+"%";t.innerHTML=`<img alt="${esc(lg.name)}" src="${lg.src}">`;
+      box.appendChild(t);return {el:t,...p}});
+    cover.addEventListener("click",()=>phase==="idle"?start():skip());
+    el.addEventListener("click",e=>{if(phase==="running"&&!e.target.closest("#sndBtn,#cover"))skip()});
+    el.querySelector("#skipBtn").addEventListener("click",skip);
+    el.querySelector("#sndBtn").addEventListener("click",e=>{e.stopPropagation();sound=!sound;
+      try{localStorage.setItem("sallee-cal-sound",sound?"on":"off")}catch(x){}
+      e.target.textContent=sound?"Sound on":"Sound off";if(!sound&&ctx)ctx.suspend()});
+  }
+  const place=t=>{t.el.getAnimations().forEach(a=>a.cancel());t.el.style.transform=`translate(-50%,-50%) rotate(${t.rot}deg)`};
+
+  function start(){
+    if(phase!=="idle")return;phase="running";cover.classList.add("go");el.querySelector("#skipBtn").hidden=false;
+    if(reduce){tiles.forEach(place);timers.push(setTimeout(open,600));return}
+    thud();
+    const GAP=165,FALL=420;
+    tiles.forEach((t,k)=>timers.push(setTimeout(()=>{
+      t.el.animate([
+        {transform:`translate(-50%,-50%) translateY(-130vh) rotate(${t.from}deg)`},
+        {transform:`translate(-50%,-50%) translateY(5%) rotate(${t.rot*1.15}deg)`,offset:.78},
+        {transform:`translate(-50%,-50%) translateY(-3%) rotate(${t.rot*.95}deg)`,offset:.9},
+        {transform:`translate(-50%,-50%) rotate(${t.rot}deg)`}
+      ],{duration:FALL,easing:"cubic-bezier(.45,0,.75,1)",fill:"forwards"});
+      timers.push(setTimeout(()=>{land(k);cover.animate([{transform:"translateY(0)"},{transform:"translateY(2px)"},{transform:"translateY(0)"}],{duration:120})},FALL*.78));
+    },200+k*GAP)));
+    timers.push(setTimeout(open,200+(tiles.length-1)*GAP+FALL+300));
+  }
+  function skip(){if(phase==="idle"){start();}if(phase!=="running")return;timers.forEach(clearTimeout);timers=[];tiles.forEach(place);open()}
+  function open(){
+    if(phase==="open"||phase==="done")return;
+    if(!target){phase="waiting";el.querySelector("#skipBtn").hidden=true;return} // still checking sign-in; opens when setTarget() arrives
+    phase="open";el.querySelector("#skipBtn").hidden=true;timers.forEach(clearTimeout);timers=[];
+    swell();fillPage();
+    const anim=reduce
+      ?cover.animate([{opacity:1},{opacity:0}],{duration:400,fill:"forwards"})
+      :cover.animate([{transform:"rotateY(0deg)"},{transform:"rotateY(-150deg)",opacity:1,offset:.85},{transform:"rotateY(-165deg)",opacity:0}],{duration:1000,easing:"cubic-bezier(.6,.05,.3,1)",fill:"forwards"});
+    anim.onfinish=()=>{cover.style.visibility="hidden";if(target==="calendar")finish()};
+  }
+  function fillPage(){
+    const pg=el.querySelector("#splashPage .pin");
+    if(target==="signin")pg.innerHTML=`<small>Sallee Horse Vans · Social media</small><h2>Event Calendar</h2>
+      <p>Sign in with your Sallee Microsoft 365 account.</p>
+      <button class="ms-btn" id="splashSignIn" type="button">${MS_ICON}Sign in with Microsoft</button>`;
+    else pg.innerHTML=`<small>Sallee Horse Vans · Social media</small><h2>Event Calendar</h2><p>Welcome in.</p>`;
+    const b=el.querySelector("#splashSignIn");if(b){b.addEventListener("click",()=>Store.signIn());setTimeout(()=>b.focus(),1000)}
+  }
+  function finish(){phase="done";el.classList.add("fade");setTimeout(()=>{el.remove()},380)}
+
+  return {
+    show(){if(!el)build()},
+    get shown(){return !!el&&phase!=="done"},
+    setTarget(t){target=t;if(!el)return;if(phase==="waiting")open();else if(phase==="open")fillPage()},
+    hide(){if(el&&phase!=="done"){timers.forEach(clearTimeout);finish()}}
+  };
+})();
+function hasCachedAccount(){
+  try{const k=JSON.parse(localStorage.getItem("msal.account.keys")||"[]");if(Array.isArray(k)&&k.length)return true}catch(e){}
+  return /[?#&](code|error)=/.test(location.hash+location.search); // coming back from Microsoft sign-in
+}
 (async()=>{
+  if(Store.mode==="demo"||!hasCachedAccount())Splash.show();
   try{
     const state=await Store.init();
+    Splash.setTarget(state==="signedOut"?"signin":"calendar");
+    if(state==="signedOut"&&!Splash.shown){Splash.show();Splash.setTarget("signin")}
     if(Store.user){$("who").textContent=Store.user;$("signOut").hidden=false}
     if(Store.mode==="demo"){$("notice").hidden=false;$("notice").textContent="Demo mode: config.js isn't filled in yet, so these are the sample events and nothing is saved."}
     if(state==="signedOut"){S.loaded=true;S.canWrite=false;renderToolbar();gate(`<h2>Sign in to see the calendar</h2><p>Use your Sallee Microsoft 365 account.</p><button class="btn primary" id="signIn">Sign in with Microsoft</button>`);return}
@@ -634,7 +814,7 @@ async function refresh(){
       setInterval(()=>{if(!document.hidden)refresh()},((window.SALLEE_CAL_CONFIG||{}).pollSeconds||60)*1000);
       document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh()});
     }
-  }catch(e){S.loaded=true;renderToolbar();gate(`<h2>Couldn't open the calendar</h2><p>${esc(explain(e))}</p><button class="btn" onclick="location.reload()">Try again</button>`)}
+  }catch(e){Splash.setTarget("calendar");S.loaded=true;renderToolbar();gate(`<h2>Couldn't open the calendar</h2><p>${esc(explain(e))}</p><button class="btn" onclick="location.reload()">Try again</button>`)}
 })();
 </script>
 </body>
