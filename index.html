@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -200,45 +199,57 @@ img{max-width:100%}
 a.btn{text-decoration:none;color:var(--ink);display:inline-block}
 .gate h2{font-family:var(--f-display);font-size:28px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink);margin:0 0 6px}
 .gate p{max-width:52ch;margin:6px auto 14px}
-/* ---------- sign-in cover (book) ----------
-   A deliberately single-look object: a cloth-bound cover with gold foil, same in both themes. */
-:root{--cover:#123d2f;--cover-2:#0d2f24;--foil:#d8b86a;--foil-dim:#b39852;--page:#fbfaf6;--page-ink:#1a2420;--page-muted:#5d6a63}
-.splash{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:var(--bg);padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));transition:opacity .35s ease}
+/* ---------- sign-in cover (book, from the "Sallee Calendar Cover" prototype) ----------
+   Deliberately single-look: dark green cloth, gold and cream, same in both themes. */
+:root{--sp-deep:#0a1f16;--sp-green:#0e2b1e;--sp-green-2:#123726;--sp-gold:#d8ad4d;--sp-gold-bright:#f0c866;--sp-cream:#f3ede0;--sp-cream-dim:#c9c0ac;--sp-line:rgba(216,173,77,.25)}
+.splash{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:var(--sp-deep);color:var(--sp-cream);
+  padding-inline:16px;padding-block:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-bottom,0px));perspective:1800px;
+  -webkit-tap-highlight-color:transparent;transition:opacity .45s ease}
 .splash.fade{opacity:0;pointer-events:none}
-.book{position:relative;width:min(440px,92vw,calc((100dvh - 48px) * .75));aspect-ratio:3/4;perspective:1800px}
-.book .page,.book .cover{position:absolute;inset:0;border-radius:6px 14px 14px 6px}
-.book .page{background:var(--page);color:var(--page-ink);box-shadow:0 20px 50px rgba(0,0,0,.25),inset 10px 0 18px -12px rgba(0,0,0,.25);display:grid;place-items:center;padding:28px;text-align:center}
-.book .page .pin{display:grid;gap:12px;justify-items:center;max-width:30ch}
-.book .page small{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--page-muted)}
-.book .page h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;text-transform:uppercase;letter-spacing:.02em;color:var(--page-ink)}
-.book .page p{margin:0;color:var(--page-muted);font-size:15px}
+.sp-book{position:relative;width:min(560px,92vw);height:min(760px,84dvh)}
+.sp-half{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;
+  background:radial-gradient(120% 90% at 30% 15%,var(--sp-green-2),var(--sp-green) 55%,var(--sp-deep) 100%);
+  box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 0 0 1px var(--sp-line);
+  transition:transform 1.1s cubic-bezier(.5,0,.15,1),box-shadow 1.1s ease;transform-style:preserve-3d}
+.sp-half.left{left:0;border-radius:10px 0 0 10px;transform-origin:left center}
+.sp-half.right{right:0;border-radius:0 10px 10px 0;transform-origin:right center}
+.sp-half::before{content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:overlay;
+  background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px),repeating-linear-gradient(25deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px)}
+.sp-half::after{content:"";position:absolute;top:0;bottom:0;width:34px;background:linear-gradient(90deg,rgba(0,0,0,.4),transparent)}
+.sp-half.left::after{right:0}
+.sp-half.right::after{left:0;transform:scaleX(-1)}
+.sp-book.open .sp-half.left{transform:rotateY(-118deg);box-shadow:0 30px 80px rgba(0,0,0,.15)}
+.sp-book.open .sp-half.right{transform:rotateY(118deg);box-shadow:0 30px 80px rgba(0,0,0,.15)}
+.sp-frame{position:absolute;inset:14px;border:1px solid var(--sp-line);border-radius:4px;pointer-events:none}
+.sp-title{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:9%;text-align:center;z-index:2;pointer-events:none;transition:opacity .5s ease}
+.sp-title .eyebrow{font-family:var(--f-mono);font-size:clamp(10px,2.4vw,12px);letter-spacing:.32em;text-transform:uppercase;color:var(--sp-gold);opacity:.9;margin:0 0 10px}
+.sp-title h1{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(30px,8vw,50px);line-height:.95;margin:0;color:var(--sp-cream);text-wrap:balance}
+.sp-title .sub{font-family:var(--f-mono);font-size:clamp(10px,2.2vw,12px);letter-spacing:.14em;text-transform:uppercase;color:var(--sp-cream-dim);margin-top:10px}
+.sp-title .rule{width:46px;height:2px;background:var(--sp-gold);margin:16px auto 0;opacity:.8}
+.sp-logos{position:absolute;inset:0;z-index:1;transition:opacity .5s ease;pointer-events:none}
+.sp-book.open .sp-logos,.sp-book.open .sp-title{opacity:0}
+.sp-badge{position:absolute;width:clamp(48px,11vw,72px);height:clamp(48px,11vw,72px);background:#fdfbf4;border-radius:9px;
+  box-shadow:0 8px 22px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;padding:7px;opacity:0;will-change:transform,opacity}
+.sp-badge img{max-width:100%;max-height:100%;object-fit:contain}
+.sp-prompt{position:absolute;left:0;right:0;bottom:8%;text-align:center;z-index:3;font-family:var(--f-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--sp-gold-bright);pointer-events:none}
+.sp-prompt span{display:inline-block;padding:10px 18px;border:1px solid var(--sp-gold);border-radius:999px}
+@media (prefers-reduced-motion:no-preference){.sp-prompt span{animation:sp-pulse 1.8s ease-in-out infinite}@keyframes sp-pulse{0%,100%{opacity:.65;transform:scale(1)}50%{opacity:1;transform:scale(1.035)}}}
+.sp-prompt.hide{opacity:0;transition:opacity .4s ease}
+.sp-tap{position:absolute;inset:0;z-index:4;background:transparent;border:0;cursor:pointer;border-radius:10px}
+.sp-tap:focus-visible{outline:2px solid var(--sp-gold-bright);outline-offset:4px}
+.sp-book.open .sp-tap{display:none}
+.sp-reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:6px;
+  background:radial-gradient(120% 90% at 50% 0%,#16311f,#0a1f16 70%);border-radius:10px;box-shadow:inset 0 0 0 1px var(--sp-line)}
+.sp-reveal small{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--sp-gold)}
+.sp-reveal h2{font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:clamp(26px,6vw,40px);margin:6px 0 4px;color:var(--sp-cream);letter-spacing:.01em}
+.sp-reveal p{margin:0 0 14px;color:var(--sp-cream-dim);font-size:15px;max-width:30ch}
 .ms-btn{display:inline-flex;align-items:center;gap:10px;border:1px solid #8c8c8c;background:#fff;color:#2f2f2f;font-family:"Segoe UI",var(--f-body);font-weight:600;font-size:15px;padding:10px 16px;border-radius:4px;cursor:pointer}
 .ms-btn:hover{background:#f3f3f3}
 .ms-btn svg{width:20px;height:20px;flex:none}
-.book .cover{transform-origin:left center;transform-style:preserve-3d;cursor:pointer;border:0;padding:0;font:inherit;color:var(--foil);text-align:left;
-  background:
-    radial-gradient(120% 90% at 30% 20%,rgba(255,255,255,.07),transparent 60%),
-    repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 2px,rgba(0,0,0,.03) 2px 4px),
-    linear-gradient(160deg,var(--cover),var(--cover-2));
-  box-shadow:0 24px 60px rgba(0,0,0,.35),inset 12px 0 16px -10px rgba(0,0,0,.5),inset -2px 0 0 rgba(255,255,255,.06);overflow:hidden;backface-visibility:hidden}
-.book .cover:focus-visible{outline:3px solid var(--foil);outline-offset:4px}
-.cover .frame{position:absolute;inset:14px;border:1.5px solid var(--foil-dim);border-radius:4px 10px 10px 4px;pointer-events:none}
-.cover .frame::after{content:"";position:absolute;inset:5px;border:1px solid rgba(216,184,106,.45);border-radius:2px 7px 7px 2px}
-.cover .spine{position:absolute;left:0;top:0;bottom:0;width:18px;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(0,0,0,0));pointer-events:none}
-.cover .ttl{position:absolute;left:0;right:0;bottom:9%;display:grid;gap:6px;justify-items:center;text-align:center;pointer-events:none}
-.cover .ttl small{font-family:var(--f-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--foil-dim)}
-.cover .ttl b{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,9vw,44px);line-height:.95;letter-spacing:.04em;text-transform:uppercase;color:var(--foil);text-shadow:0 1px 0 rgba(0,0,0,.35),0 -1px 0 rgba(255,240,200,.15)}
-.cover .ttl i{font-style:normal;font-family:var(--f-mono);font-size:12px;letter-spacing:.2em;color:var(--foil-dim)}
-.cover .rule{width:46px;height:1px;background:var(--foil-dim)}
-.cover .tap{position:absolute;left:50%;bottom:3.2%;transform:translateX(-50%);font-family:var(--f-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--foil-dim);white-space:nowrap;pointer-events:none}
-@media (prefers-reduced-motion:no-preference){.cover .tap{animation:tap 1.6s ease-in-out infinite}@keyframes tap{50%{opacity:.35}}}
-.cover.go .tap{visibility:hidden}
-.cover .tiles{position:absolute;inset:0;pointer-events:none}
-.tile{position:absolute;width:19%;aspect-ratio:1;border-radius:8px;background:#fff;display:grid;place-items:center;padding:5%;box-shadow:0 6px 14px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.4) inset;transform:translate(-50%,-50%) translateY(-130vh);will-change:transform}
-.tile img{width:100%;height:100%;object-fit:contain;display:block}
-.tile.onbg{padding:3%}
-.splash .snd{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer}
-.splash .skip{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer}
+.sp-ctl{position:absolute;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.35);color:var(--sp-cream-dim);border:1px solid var(--sp-line);border-radius:999px;padding:7px 13px;cursor:pointer;z-index:5}
+.sp-ctl:hover{color:var(--sp-gold-bright);border-color:var(--sp-gold)}
+.sp-snd{top:calc(12px + env(safe-area-inset-top,0px));right:12px}
+.sp-skip{bottom:calc(12px + env(safe-area-inset-bottom,0px));right:12px}
 </style>
 </head>
 <body>
@@ -356,7 +367,9 @@ const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
 const daysBetween=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
 const TODAY=iso(new Date());
 
-const Store=window.CalendarStore;
+/* If data.js / config.js didn't load (e.g. index.html opened on its own), fail with a clear message instead of a crash. */
+const Store=window.CalendarStore||{mode:"missing",canWrite:false,listUrl:"",recipientsUrl:"",user:"",
+  async init(){const e=new Error("files missing");e.missing=true;throw e},async load(){return new Map()},signIn(){},signOut(){}};
 const S={pending:0,events:new Map(),loaded:false,view:"timeline",cats:new Set(Object.keys(CATS)),venue:"all",q:"",past:false,
   month:(()=>{const d=new Date();return {y:d.getFullYear(),m:d.getMonth()}})(),sel:TODAY,open:null,draft:null,canWrite:true,db:null};
 
@@ -644,6 +657,7 @@ render();
 
 function gate(html){$("main").innerHTML=`<div class="empty gate">${html}</div>`}
 function explain(e){
+  if(e&&e.missing)return "The page's other files didn't load. Keep config.js, data.js, msal-browser.min.js and events.json in the same folder as index.html.";
   const st=e&&e.status;
   if(st===401||st===403)return "Your Microsoft account doesn't have access to the Social Media & Marketing SharePoint site. Ask Manu to add you to the site.";
   if(st===404)return "The SharePoint site or list set in config.js wasn't found. Check siteHost, sitePath and the list names.";
@@ -661,136 +675,139 @@ async function refresh(){
     if(S.open&&!S.draft&&S.events.has(S.open)&&!document.activeElement?.matches("#drawer input,#drawer textarea,#drawer select"))drawDrawer();
   }catch(e){if(!S.loaded){S.loaded=true;gate(`<h2>Couldn't load events</h2><p>${esc(explain(e))}</p><button class="btn" onclick="location.reload()">Try again</button>`)}else toast("Couldn't reach SharePoint. Will retry shortly.")}
 }
-/* ---------- sign-in cover ----------
-   Logos tumble onto a book cover on a beat (~3.5 s), then the cover swings open onto the
-   Microsoft sign-in (or, in demo mode, onto the calendar). Tap anywhere during it to skip.
-   Sound is synthesized here with Web Audio: no audio files. */
+/* ---------- sign-in cover (ported from the "Sallee Calendar Cover" prototype) ----------
+   Venue logos drop onto the book on a 128 bpm groove with plucked notes, then the cover
+   opens like double doors onto the Microsoft sign-in (or, in demo mode, the calendar).
+   Tap during the sequence to skip. Sound is generated with Web Audio: no audio files. */
 const Splash=(()=>{
   const MS_ICON='<svg viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>';
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let el,cover,tiles=[],target=null,phase="idle",timers=[],ctx=null,noise=null,sound=true;
+  // hand-arranged scatter from the prototype (+1 spot for the season's event logo)
+  const LAYOUT=[
+    {x:14,y:16,r:-9},{x:62,y:10,r:6},{x:36,y:8,r:-3},{x:80,y:22,r:11},
+    {x:8,y:38,r:5},{x:28,y:44,r:-8},{x:70,y:40,r:-4},{x:90,y:52,r:8},
+    {x:16,y:64,r:8},{x:48,y:60,r:-6},{x:64,y:70,r:5},{x:84,y:78,r:-7},
+    {x:32,y:82,r:4},{x:8,y:86,r:-5},{x:56,y:88,r:-3}
+  ];
+  const BEATS=[0,0.5,1,1.5,1.75,2.25,2.75,3,3.5,4,4.5,4.75,5.25,5.75,6.25];
+  const TEMPO=128,BEAT_S=60/TEMPO,FALL=520;
+  const SCALE=[261.6,293.7,329.6,392.0,440.0,523.3,587.3,659.3,784.0,880.0];
+  let el,book,badges=[],target=null,phase="idle",timers=[],actx=null,bus=null,sound=true;
   try{sound=localStorage.getItem("sallee-cal-sound")!=="off"}catch(e){}
 
   function logos(){
     const yr=String(new Date().getFullYear());
-    const list=Object.entries(VENUES).filter(([,v])=>v.logo).map(([name,v])=>({name,src:v.logo,bg:v.bg}));
-    for(const x of EVENT_LOGOS)if(x.logo&&(!x.year||x.year===yr))list.push({name:x.name,src:x.logo,bg:x.bg});
+    const list=Object.entries(VENUES).filter(([,v])=>v.logo).map(([name,v])=>({name,src:v.logo}));
+    for(const x of EVENT_LOGOS)if(x.logo&&(!x.year||x.year===yr))list.push({name:x.name,src:x.logo});
     return list;
   }
-  // Scatter: a jittered grid over the top ~62% of the cover, so the title stays clear.
-  function layout(n){
-    const cols=4,rows=Math.ceil(n/cols),out=[];let seed=7;
-    const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
-    for(let i=0;i<n;i++){
-      const r=Math.floor(i/cols),c=i%cols,inRow=Math.min(cols,n-r*cols),off=(cols-inRow)/2;
-      const x=14+(c+off)*(72/(cols-1))+(rnd()-.5)*9;
-      const y=13+r*(44/Math.max(1,rows-1))+(rnd()-.5)*7;
-      out.push({x,y,rot:(rnd()-.5)*28,from:(rnd()-.5)*90});
-    }
-    // land in a shuffled order so it doesn't read as a typewriter
-    const order=[...out.keys()].sort(()=>rnd()-.5);
-    return order.map(i=>({...out[i],i}));
-  }
 
-  /* --- audio --- */
-  function audio(){
+  /* --- audio (same voices as the prototype) --- */
+  function ac(){
     if(!sound)return null;
     try{
-      if(!ctx){ctx=new (window.AudioContext||window.webkitAudioContext)();
-        const len=ctx.sampleRate*.2;noise=ctx.createBuffer(1,len,ctx.sampleRate);
-        const d=noise.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);}
-      if(ctx.state==="suspended")ctx.resume();
-      return ctx;
+      if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)()}
+      if(actx.state==="suspended")actx.resume();
+      if(!bus){bus=actx.createGain();bus.gain.value=1;bus.connect(actx.destination)}
+      return actx;
     }catch(e){return null}
   }
-  function env(g,t,peak,att,dec){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+att);g.gain.exponentialRampToValueAtTime(0.0001,t+att+dec)}
-  function thud(){const a=audio();if(!a)return;const t=a.currentTime+.01;
-    const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(42,t+.28);
-    env(g,t,.7,.008,.34);o.connect(g).connect(a.destination);o.start(t);o.stop(t+.4);
-    const n=a.createBufferSource(),f=a.createBiquadFilter(),ng=a.createGain();n.buffer=noise;f.type="lowpass";f.frequency.value=500;env(ng,t,.35,.004,.15);n.connect(f).connect(ng).connect(a.destination);n.start(t)}
-  const STEPS=[0,2,4,7,9,12,14,16,19,21,24,26,28,31,33,36];
-  function land(k){const a=audio();if(!a)return;const t=a.currentTime+.005,f=293.66*Math.pow(2,STEPS[k%STEPS.length]/12);
-    const o=a.createOscillator(),o2=a.createOscillator(),g=a.createGain(),g2=a.createGain();
-    o.type="triangle";o.frequency.value=f;o2.type="sine";o2.frequency.value=f*2;
-    env(g,t,.22,.004,.26);env(g2,t,.06,.004,.14);o.connect(g).connect(a.destination);o2.connect(g2).connect(a.destination);
-    o.start(t);o2.start(t);o.stop(t+.35);o2.stop(t+.25);
-    const n=a.createBufferSource(),hp=a.createBiquadFilter(),ng=a.createGain();n.buffer=noise;hp.type="highpass";hp.frequency.value=2500;env(ng,t,.08,.002,.04);n.connect(hp).connect(ng).connect(a.destination);n.start(t)}
-  function swell(){const a=audio();if(!a)return;const t=a.currentTime+.02;
-    for(const f of [293.66,369.99,440,587.33]){const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=f;
-      g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.07,t+.35);g.gain.exponentialRampToValueAtTime(0.0001,t+1.7);
-      o.connect(g).connect(a.destination);o.start(t);o.stop(t+1.8)}}
+  function pluck(freq,t,gain=0.16,dur=0.5){const c=ac();if(!c)return;
+    const o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
+    o.type="triangle";o.frequency.setValueAtTime(freq,t);f.type="lowpass";f.frequency.setValueAtTime(freq*3.2,t);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(f);f.connect(g);g.connect(bus);o.start(t);o.stop(t+dur+0.02)}
+  function thud(t,gain=0.3){const c=ac();if(!c)return;
+    const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.setValueAtTime(90,t);o.frequency.exponentialRampToValueAtTime(42,t+0.28);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+0.42);
+    o.connect(g);g.connect(bus);o.start(t);o.stop(t+0.45)}
+  function swell(){const c=ac();if(!c)return;const t=c.currentTime+0.02;
+    for(const f of [261.6,329.6,392.0,523.3]){const o=c.createOscillator(),g=c.createGain();
+      o.type="triangle";o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.09,t+0.9);g.gain.exponentialRampToValueAtTime(0.0001,t+2.4);
+      o.connect(g);g.connect(bus);o.start(t);o.stop(t+2.5)}}
+  function noteFor(i,total){const arch=i<total*0.7?i:(total-1-i)*0.6;return SCALE[Math.min(SCALE.length-1,Math.round(arch))]}
+  function silenceScheduled(){ // cut notes already queued on the audio clock (used by Skip)
+    if(!actx||!bus)return;const t=actx.currentTime;bus.gain.setValueAtTime(bus.gain.value,t);bus.gain.linearRampToValueAtTime(0,t+0.05);
+    const old=bus;setTimeout(()=>{try{old.disconnect()}catch(e){}},200);bus=null}
 
   /* --- build --- */
   function build(){
     const year=new Date().getFullYear();
     el=document.createElement("div");el.className="splash";el.id="splash";
-    el.innerHTML=`<button class="snd" id="sndBtn" type="button">${sound?"Sound on":"Sound off"}</button>
-      <div class="book">
-        <div class="page" id="splashPage"><div class="pin"><small>Sallee Horse Vans · Social media</small><h2>Event Calendar</h2><p>Opening…</p></div></div>
-        <button class="cover" id="cover" type="button" aria-label="Open the Sallee event calendar">
-          <span class="spine"></span><span class="frame"></span><span class="tiles" id="tiles"></span>
-          <span class="ttl"><small>Sallee Horse Vans</small><b>Event<br>Calendar</b><span class="rule"></span><i>${year} Season</i></span>
-          <span class="tap">Tap to open</span>
-        </button>
+    el.innerHTML=`<button class="sp-ctl sp-snd" id="sndBtn" type="button">${sound?"Sound on":"Sound off"}</button>
+      <div class="sp-book" id="spBook">
+        <div class="sp-reveal" id="spReveal"><small>Sallee Horse Vans · Social Media</small><h2>Event Calendar</h2><p>Opening…</p></div>
+        <div class="sp-half left"><div class="sp-frame"></div></div>
+        <div class="sp-half right"><div class="sp-frame"></div></div>
+        <div class="sp-logos" id="spLogos"></div>
+        <div class="sp-title"><div class="eyebrow">Sallee Horse Vans</div><h1>Event<br>Calendar</h1><div class="rule"></div><div class="sub">${year} Racing &amp; Sales Season</div></div>
+        <div class="sp-prompt" id="spPrompt"><span>Tap to begin</span></div>
+        <button class="sp-tap" id="spTap" type="button" aria-label="Open the Sallee event calendar"></button>
       </div>
-      <button class="skip" id="skipBtn" type="button" hidden>Skip</button>`;
+      <button class="sp-ctl sp-skip" id="skipBtn" type="button" hidden>Skip ›</button>`;
     document.body.appendChild(el);
-    cover=el.querySelector("#cover");
-    const box=el.querySelector("#tiles"),L=logos();
-    tiles=layout(L.length).map(p=>{const lg=L[p.i];const t=document.createElement("span");
-      t.className="tile"+(lg.bg?" onbg":"");if(lg.bg)t.style.background=lg.bg;
-      t.style.left=p.x+"%";t.style.top=p.y+"%";t.innerHTML=`<img alt="${esc(lg.name)}" src="${lg.src}">`;
-      box.appendChild(t);return {el:t,...p}});
-    cover.addEventListener("click",()=>phase==="idle"?start():skip());
-    el.addEventListener("click",e=>{if(phase==="running"&&!e.target.closest("#sndBtn,#cover"))skip()});
+    book=el.querySelector("#spBook");
+    const layer=el.querySelector("#spLogos"),L=logos();
+    badges=L.map((lg,i)=>{const p=LAYOUT[i%LAYOUT.length];const b=document.createElement("div");
+      b.className="sp-badge";b.style.left=p.x+"%";b.style.top=p.y+"%";
+      b.innerHTML=`<img alt="${esc(lg.name)}" src="${lg.src}">`;layer.appendChild(b);return {el:b,rot:p.r}});
+    el.querySelector("#spTap").addEventListener("click",()=>phase==="idle"?start():skip());
     el.querySelector("#skipBtn").addEventListener("click",skip);
-    el.querySelector("#sndBtn").addEventListener("click",e=>{e.stopPropagation();sound=!sound;
+    el.querySelector("#sndBtn").addEventListener("click",e=>{sound=!sound;
       try{localStorage.setItem("sallee-cal-sound",sound?"on":"off")}catch(x){}
-      e.target.textContent=sound?"Sound on":"Sound off";if(!sound&&ctx)ctx.suspend()});
+      e.currentTarget.textContent=sound?"Sound on":"Sound off";if(!sound)silenceScheduled()});
   }
-  const place=t=>{t.el.getAnimations().forEach(a=>a.cancel());t.el.style.transform=`translate(-50%,-50%) rotate(${t.rot}deg)`};
+  const settle=b=>{b.el.getAnimations().forEach(a=>a.cancel());b.el.style.opacity="1";b.el.style.transform=`translate(-50%,-50%) rotate(${b.rot}deg)`};
 
   function start(){
-    if(phase!=="idle")return;phase="running";cover.classList.add("go");el.querySelector("#skipBtn").hidden=false;
-    if(reduce){tiles.forEach(place);timers.push(setTimeout(open,600));return}
-    thud();
-    const GAP=165,FALL=420;
-    tiles.forEach((t,k)=>timers.push(setTimeout(()=>{
-      t.el.animate([
-        {transform:`translate(-50%,-50%) translateY(-130vh) rotate(${t.from}deg)`},
-        {transform:`translate(-50%,-50%) translateY(5%) rotate(${t.rot*1.15}deg)`,offset:.78},
-        {transform:`translate(-50%,-50%) translateY(-3%) rotate(${t.rot*.95}deg)`,offset:.9},
-        {transform:`translate(-50%,-50%) rotate(${t.rot}deg)`}
-      ],{duration:FALL,easing:"cubic-bezier(.45,0,.75,1)",fill:"forwards"});
-      timers.push(setTimeout(()=>{land(k);cover.animate([{transform:"translateY(0)"},{transform:"translateY(2px)"},{transform:"translateY(0)"}],{duration:120})},FALL*.78));
-    },200+k*GAP)));
-    timers.push(setTimeout(open,200+(tiles.length-1)*GAP+FALL+300));
+    if(phase!=="idle")return;phase="running";
+    el.querySelector("#spPrompt").classList.add("hide");el.querySelector("#skipBtn").hidden=false;
+    if(reduce){badges.forEach(settle);timers.push(setTimeout(open,700));return}
+    const c=ac(),lead=0.05,t0=c?c.currentTime+lead:0;
+    thud(t0,0.3);
+    badges.forEach((b,i)=>{
+      const delay=BEATS[i%BEATS.length]*BEAT_S+Math.floor(i/BEATS.length)*BEAT_S*0.25; // seconds after t0
+      timers.push(setTimeout(()=>{
+        b.el.style.opacity="1";
+        b.el.animate([
+          {transform:`translate(-50%,-160%) rotate(${b.rot*3}deg) scale(.7)`,opacity:0,offset:0},
+          {transform:`translate(-50%,-50%) rotate(${b.rot*0.4}deg) scale(1.08)`,opacity:1,offset:.75},
+          {transform:`translate(-50%,-50%) rotate(${b.rot}deg) scale(1)`,opacity:1,offset:1}
+        ],{duration:FALL,easing:"cubic-bezier(.2,.7,.3,1.3)",fill:"forwards"});
+      },Math.max(0,(lead+delay)*1000-FALL)));
+      if(c)pluck(noteFor(i,badges.length),t0+delay,0.16,0.5);
+    });
+    const n=badges.length-1,lastAt=BEATS[n%BEATS.length]*BEAT_S+Math.floor(n/BEATS.length)*BEAT_S*0.25;
+    timers.push(setTimeout(open,(lead+lastAt+BEAT_S*1.4)*1000));
   }
-  function skip(){if(phase==="idle"){start();}if(phase!=="running")return;timers.forEach(clearTimeout);timers=[];tiles.forEach(place);open()}
+  function skip(){
+    if(phase==="idle"){phase="running";el.querySelector("#spPrompt").classList.add("hide")}
+    if(phase!=="running")return;timers.forEach(clearTimeout);timers=[];silenceScheduled();badges.forEach(settle);open();
+  }
   function open(){
     if(phase==="open"||phase==="done")return;
-    if(!target){phase="waiting";el.querySelector("#skipBtn").hidden=true;return} // still checking sign-in; opens when setTarget() arrives
-    phase="open";el.querySelector("#skipBtn").hidden=true;timers.forEach(clearTimeout);timers=[];
-    swell();fillPage();
-    const anim=reduce
-      ?cover.animate([{opacity:1},{opacity:0}],{duration:400,fill:"forwards"})
-      :cover.animate([{transform:"rotateY(0deg)"},{transform:"rotateY(-150deg)",opacity:1,offset:.85},{transform:"rotateY(-165deg)",opacity:0}],{duration:1000,easing:"cubic-bezier(.6,.05,.3,1)",fill:"forwards"});
-    anim.onfinish=()=>{cover.style.visibility="hidden";if(target==="calendar")finish()};
+    el.querySelector("#skipBtn").hidden=true;
+    if(!target){phase="waiting";return} // still checking sign-in; opens as soon as setTarget() arrives
+    phase="open";timers.forEach(clearTimeout);timers=[];
+    fillReveal();swell();book.classList.add("open");
+    if(target==="calendar")setTimeout(finish,reduce?300:1300);
   }
-  function fillPage(){
-    const pg=el.querySelector("#splashPage .pin");
-    if(target==="signin")pg.innerHTML=`<small>Sallee Horse Vans · Social media</small><h2>Event Calendar</h2>
-      <p>Sign in with your Sallee Microsoft 365 account.</p>
-      <button class="ms-btn" id="splashSignIn" type="button">${MS_ICON}Sign in with Microsoft</button>`;
-    else pg.innerHTML=`<small>Sallee Horse Vans · Social media</small><h2>Event Calendar</h2><p>Welcome in.</p>`;
-    const b=el.querySelector("#splashSignIn");if(b){b.addEventListener("click",()=>Store.signIn());setTimeout(()=>b.focus(),1000)}
+  function fillReveal(){
+    const r=el.querySelector("#spReveal");
+    if(target==="signin"){
+      r.innerHTML=`<small>Sallee Horse Vans · Social Media</small><h2>Event Calendar</h2>
+        <p>Sign in with your Sallee Microsoft 365 account.</p>
+        <button class="ms-btn" id="splashSignIn" type="button">${MS_ICON}Sign in with Microsoft</button>`;
+      const b=r.querySelector("#splashSignIn");b.addEventListener("click",()=>Store.signIn());setTimeout(()=>b.focus({preventScroll:true}),1100);
+    }else r.innerHTML=`<small>Sallee Horse Vans · Social Media</small><h2>Event Calendar</h2><p>Welcome in.</p>`;
   }
-  function finish(){phase="done";el.classList.add("fade");setTimeout(()=>{el.remove()},380)}
+  function finish(){phase="done";el.classList.add("fade");setTimeout(()=>el.remove(),480)}
 
   return {
     show(){if(!el)build()},
     get shown(){return !!el&&phase!=="done"},
-    setTarget(t){target=t;if(!el)return;if(phase==="waiting")open();else if(phase==="open")fillPage()},
+    setTarget(t){target=t;if(!el)return;if(phase==="waiting")open();else if(phase==="open")fillReveal()},
     hide(){if(el&&phase!=="done"){timers.forEach(clearTimeout);finish()}}
   };
 })();
