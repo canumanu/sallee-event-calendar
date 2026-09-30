@@ -1,3 +1,4 @@
+
 /* Sallee Event Calendar — data layer.
    SharePointStore: Microsoft 365 sign-in (MSAL) + Microsoft Graph, data in a SharePoint list.
    DemoStore: sample events from events.json, kept in memory (used when config.js has no clientId). */
@@ -8,7 +9,7 @@
   const SETUP_SCOPES = ["Sites.Manage.All"];
 
   // App values <-> SharePoint choice labels
-  const TYPE_TO_SP = { raceday: "Race day / stakes", sale: "Sale", meet: "Race meet", tack: "Under tack show", digital: "Digital sale" };
+  const TYPE_TO_SP = { raceday: "Race day / stakes", sale: "Sale", meet: "Race meet", tack: "Under tack show", digital: "Digital sale", recruiting: "Recruiting" };
   const STATUS_TO_SP = { planned: "Planned", scheduled: "Shoot booked", shot: "Filmed", posted: "Posted" };
   const invert = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [v, k]));
   const SP_TO_TYPE = invert(TYPE_TO_SP), SP_TO_STATUS = invert(STATUS_TO_SP);
